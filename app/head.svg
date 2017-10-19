@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="182.44864"
+   height="198.5457"
+   viewBox="0 0 182.44865 198.54571"
+   id="svg2"
+   version="1.1"
+   inkscape:version="0.91 r13725"
+   sodipodi:docname="head.svg"
+   inkscape:export-filename="/home/ilkka/projects/personal/android-nanodegree/BakingApp/app/head.png"
+   inkscape:export-xdpi="90"
+   inkscape:export-ydpi="90">
+  <defs
+     id="defs4" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="1"
+     inkscape:cx="-20.302373"
+     inkscape:cy="-4.3919225"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     units="px"
+     fit-margin-top="0"
+     fit-margin-left="0"
+     fit-margin-right="0"
+     fit-margin-bottom="0"
+     inkscape:window-width="1920"
+     inkscape:window-height="983"
+     inkscape:window-x="0"
+     inkscape:window-y="27"
+     inkscape:window-maximized="1" />
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-12.368864,-13.415459)">
+    <ellipse
+       style="fill:#000000"
+       id="path3346"
+       cx="104.39618"
+       cy="84.185516"
+       rx="58.251171"
+       ry="70.770058" />
+    <path
+       style="fill:#000000"
+       d="m 135.98045,211.53454 c -19.25315,0.0898 -54.864779,0.2554 -79.136955,0.36795 -24.272166,0.11255 -44.275431,0.0582 -44.451696,-0.12071 -0.176266,-0.17894 0.682886,-2.41398 1.909224,-4.96675 1.709721,-3.55896 3.186153,-5.65701 6.330964,-8.99645 7.022504,-7.45713 13.274077,-10.63731 33.707177,-17.14688 12.828105,-4.08678 19.015637,-6.6141 23.191095,-9.47252 3.249977,-2.22486 7.151565,-6.764 8.584601,-9.98742 1.13699,-2.5575 2.51546,-8.45529 2.519774,-10.78084 0.0018,-0.98474 0.192228,-1.16946 0.898616,-0.87177 4.093988,1.72526 8.8874,2.37384 16.23723,2.19703 4.21558,-0.10139 8.44646,-0.2653 9.40193,-0.36416 l 1.73724,-0.17974 0.6744,3.30137 c 0.89252,4.36909 2.98843,8.23747 6.19171,11.42786 5.21861,5.19763 10.58699,7.5548 29.06961,12.76398 6.2515,1.76193 13.62781,4.12215 16.39181,5.24495 13.64452,5.54267 21.43208,13.5752 25.21898,26.01229 l 0.36135,1.18675 -11.91566,0.11087 c -6.55362,0.061 -27.66824,0.18436 -46.9214,0.27419 z"
+       id="path3373"
+       inkscape:connector-curvature="0" />
+  </g>
+</svg>

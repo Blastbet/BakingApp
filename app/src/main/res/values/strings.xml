@@ -1,0 +1,21 @@
+<resources>
+    <string name="app_name">Baking App</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <string name="recipe_list_fragment_tag">LIST_TAG</string>
+    <string name="recipe_grid_fragment_tag">GRID_TAG</string>
+    <string name="recipe_step_list_fragment_tag">STEPS_TAG</string>
+    <string name="recipe_step_details_fragment_tag">DETAILS_TAG</string>
+
+    <!-- SyncAdapter related -->
+    <string name="sync_account_type">bakingapp.nanodegree.blastbet.com</string>
+    <string name="content_authority">com.blastbet.nanodegree.bakingapp</string>
+    <string name="empty_list_item">EMPTY LIST ITEM</string>
+    <string name="no_data">NO DATA</string>
+    <string name="servings">Servings</string>
+
+    <string name="formatted_servings">x %1$d</string>
+
+</resources>
