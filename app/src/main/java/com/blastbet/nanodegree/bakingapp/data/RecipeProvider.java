@@ -115,13 +115,10 @@ public class RecipeProvider extends ContentProvider {
                 break;
             case STEP_WITH_ID:
                 recipeId = getIdFromUri(uri);
-                Log.d(LOG_TAG, "STEPDEBUG Querying recipe steps for recipe with id:" + Long.toString(recipeId));
-                Log.d(LOG_TAG, "STEPDEBUG   Selection: " + sStepIdSelection);
                 retCursor = db.query(StepEntry.TABLE_NAME,
                         projection, sStepIdSelection, new String[]{Long.toString(recipeId)},
                         null, null,
                         StepEntry.COLUMN_INDEX + " ASC");
-                Log.d(LOG_TAG, "STEPDEBUG Found " + retCursor.getCount() + " steps");
                 break;
             default:
                 throw new UnsupportedOperationException("Unsupported uri: " + uri);
@@ -320,10 +317,6 @@ public class RecipeProvider extends ContentProvider {
 
         String table;
 
-        Log.d(LOG_TAG, "At bulkinsert " + uri.toString());
-
-        Log.d(LOG_TAG, "STEPDEBUG At bulkinsert " + uri.toString());
-
         switch (match) {
             case RECIPE:
                 table = RecipeEntry.TABLE_NAME;
@@ -352,9 +345,6 @@ public class RecipeProvider extends ContentProvider {
             db.setTransactionSuccessful();
         } finally {
             db.endTransaction();
-        }
-        if (match == STEP) {
-            Log.d(LOG_TAG, "STEPDEBUG Inserted " + numInserted + " rows to " + uri.toString());
         }
         Log.v(LOG_TAG, "notifying for change in uri: " + uri);
         getContext().getContentResolver().notifyChange(uri, null);

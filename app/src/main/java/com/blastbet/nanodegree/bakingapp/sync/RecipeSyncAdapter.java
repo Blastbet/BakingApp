@@ -128,7 +128,6 @@ public class RecipeSyncAdapter extends AbstractThreadedSyncAdapter {
     }
 
     private ContentValues[] getRecipeSteps(Recipe recipe) {
-        Log.d(TAG, "STEPDEBUG Recipe steps for recipe: " + recipe.getName());
         List<RecipeStep> steps = recipe.getSteps();
         ContentValues[] v = new ContentValues[steps.size()];
         for (int i = 0; i < steps.size(); i++) {
@@ -140,7 +139,6 @@ public class RecipeSyncAdapter extends AbstractThreadedSyncAdapter {
             cv.put(StepEntry.COLUMN_SHORT_DESCRIPTION, s.getShortDescription());
             cv.put(StepEntry.COLUMN_VIDEO_URL, s.getVideoURL());
             cv.put(StepEntry.COLUMN_THUMBNAIL_URL, s.getThumbnailUrl());
-            Log.d(TAG, "STEPDEBUG " + cv.toString());
             v[i] = cv;
         }
         return v;

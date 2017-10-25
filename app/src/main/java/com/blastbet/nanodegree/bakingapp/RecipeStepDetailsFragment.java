@@ -1,49 +1,37 @@
 package com.blastbet.nanodegree.bakingapp;
 
 import android.content.Context;
-import android.net.Uri;
+import android.content.res.Configuration;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.blastbet.nanodegree.bakingapp.player.PlayerHandler;
 import com.blastbet.nanodegree.bakingapp.recipe.RecipeStep;
-import com.google.android.exoplayer2.DefaultLoadControl;
-import com.google.android.exoplayer2.DefaultRenderersFactory;
-import com.google.android.exoplayer2.ExoPlayerFactory;
+import com.google.android.exoplayer2.ExoPlaybackException;
+import com.google.android.exoplayer2.PlaybackParameters;
+import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
-import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
-import com.google.android.exoplayer2.source.ExtractorMediaSource;
-import com.google.android.exoplayer2.source.MediaSource;
-import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection;
-import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
-import com.google.android.exoplayer2.trackselection.TrackSelection;
-import com.google.android.exoplayer2.trackselection.TrackSelector;
+import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.source.TrackGroupArray;
+import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
-import com.google.android.exoplayer2.upstream.BandwidthMeter;
-import com.google.android.exoplayer2.upstream.DataSource;
-import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
-import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
-import com.google.android.exoplayer2.util.Util;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
 
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link OnRecipeStepDetailsFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link RecipeStepDetailsFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
-public class RecipeStepDetailsFragment extends Fragment {
+public class RecipeStepDetailsFragment extends Fragment implements Player.EventListener {
 
     private static final String TAG = RecipeStepDetailsFragment.class.getSimpleName();
 
@@ -51,10 +39,16 @@ public class RecipeStepDetailsFragment extends Fragment {
     private RecipeStep mRecipeStep;
     private SimpleExoPlayer mPlayer;
 
+    @BindView(R.id.recipe_step_container) LinearLayout mContainer;
     @BindView(R.id.player_recipe_step_instruction) SimpleExoPlayerView mPlayerView;
+/*    @BindView(R.id.play_button) ImageButton mButtonPlay;
+    @BindView(R.id.overlay_player_controls) LinearLayout mPlayerOverlayControls;
+    @BindView(R.id.pause_button) ImageButton mButtonPause;
+    @BindView(R.id.rewind_button) ImageButton mButtonRewind;*/
+    @BindView(R.id.player_loading_overlay) FrameLayout mPlayerLoadingOverlay;
     @BindView(R.id.text_recipe_step_instruction) TextView mTextView;
 
-    private static final String KEY_RECIPE_STEP = "recipe_step";
+    public static final String KEY_RECIPE_STEP = "recipe_step";
 
     public RecipeStepDetailsFragment() {
         // Required empty public constructor
@@ -97,7 +91,16 @@ public class RecipeStepDetailsFragment extends Fragment {
                     context.getResources().getInteger(R.integer.weight_recipe_step_details_fragment));
             view.setLayoutParams(params);
         }
+        else if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+            mContainer.setPadding(0,0,0,0);
+            ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
+            if (actionBar != null) {
+                actionBar.hide();
+            }
+        }
         if (savedInstanceState != null) {
+            Log.d(TAG, "Recipe step: " + savedInstanceState.getParcelable(KEY_RECIPE_STEP));
             mRecipeStep = savedInstanceState.getParcelable(KEY_RECIPE_STEP);
         }
 /*
@@ -105,8 +108,15 @@ public class RecipeStepDetailsFragment extends Fragment {
         mPlayer = mPlayerView.getPlayer();
 */
         //mPlayerView.setPlayer(mPlayer);
+
         initPlayer();
-        mPlayerView.setOnClickListener(new View.OnClickListener() {
+        Log.d(TAG, "**** Setting player to: " + mPlayer.toString());
+        Log.d(TAG, "**** Player surface:  " + mPlayerView.getVideoSurfaceView().toString());
+        mPlayerView.setPlayer(mPlayer);
+        mPlayerView.requestLayout();
+        mPlayer.addListener(this);
+        onPlayerStateChanged(mPlayer.getPlayWhenReady(), mPlayer.getPlaybackState());
+        /*mPlayerView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (mPlayer.getPlayWhenReady()) {
@@ -116,47 +126,28 @@ public class RecipeStepDetailsFragment extends Fragment {
                     mPlayer.setPlayWhenReady(true);
                 }
             }
-        });
+        });*/
+
+        mTextView.setText(mRecipeStep.getDescription());
         return view;
     }
 
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (!getResources().getBoolean(R.bool.landscape_only) &&
+            getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            ActionBar actionBar = ((AppCompatActivity)getActivity()).getSupportActionBar();
+            if (actionBar != null) {
+                actionBar.show();
+            }
+            getActivity().getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        }
+    }
+
     public void initPlayer() {
-
-        if (mPlayer == null) {
-            Handler mainHandler = new Handler();
-            BandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
-            TrackSelection.Factory videoTrackSelectionFactory =
-                    new AdaptiveTrackSelection.Factory(bandwidthMeter);
-            TrackSelector trackSelector = new DefaultTrackSelector(videoTrackSelectionFactory);
-//            mPlayer = ExoPlayerFactory.newSimpleInstance(getContext(), trackSelector);
-            mPlayer = ExoPlayerFactory.newSimpleInstance(
-                    new DefaultRenderersFactory(getContext()),
-                    trackSelector, new DefaultLoadControl());
-            mPlayerView.setPlayer(mPlayer);
-        }
-        else if (mPlayer.isLoading() || mPlayer.getPlayWhenReady()) {
-            mPlayer.stop();
-        }
-
-        Uri uri = Uri.parse(mRecipeStep.getVideoURL());
-
-        Log.d(TAG, "Uri for recipe step: " + mRecipeStep.getVideoURL());
-        Log.d(TAG, "Parsed Uri for recipe step: " + uri.toString());
-
-        DataSource.Factory dataSourceFactory;/* = new DefaultDataSourceFactory(
-                getContext(),
-                Util.getUserAgent(getContext(), getString(R.string.app_name)),
-                null);*/
-        dataSourceFactory = new DefaultHttpDataSourceFactory(
-                Util.getUserAgent(getContext(), getString(R.string.app_name)));
-        MediaSource mediaSource = new ExtractorMediaSource(uri,
-                dataSourceFactory,
-                new DefaultExtractorsFactory(),
-                null, null);
-        mPlayer.prepare(mediaSource);
-
-        mTextView.setText(mRecipeStep.getDescription());
-//        mPlayer.setPlayWhenReady(true);
+        mPlayer = PlayerHandler.getInstance()
+                .getPlayer(getActivity(), mRecipeStep.getVideoURL());
     }
 
     @Override
@@ -167,4 +158,64 @@ public class RecipeStepDetailsFragment extends Fragment {
         }
     }
 
+    @Override
+    public void onTimelineChanged(Timeline timeline, Object manifest) {
+        Log.d(TAG, "onTimelineChanged : " + timeline.toString());
+    }
+
+    @Override
+    public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
+        Log.d(TAG, "onTracksChanged");
+
+    }
+
+    @Override
+    public void onLoadingChanged(boolean isLoading) {
+    }
+
+    @Override
+    public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
+        Log.d(TAG, "onPlayerStateChanged : " + playWhenReady + " , " + playbackState);
+
+        if (playbackState == Player.STATE_BUFFERING) {
+            mPlayerLoadingOverlay.setVisibility(View.VISIBLE);
+            //mPlayerView.setControllerAutoShow(false);
+            mPlayerView.hideController();
+        }
+        else if (playbackState == Player.STATE_READY && playWhenReady) {
+            // Push controls out of view here
+            mPlayerLoadingOverlay.setVisibility(View.GONE);
+            mPlayerView.hideController();
+            //mPlayerView.setControllerAutoShow(true);
+        }
+        else {
+            mPlayerLoadingOverlay.setVisibility(View.GONE);
+            mPlayerView.showController();
+            //mPlayerView.setControllerAutoShow(true);
+        }
+    }
+
+    @Override
+    public void onRepeatModeChanged(int repeatMode) {
+        Log.d(TAG, "onRepeatModeChanged " + repeatMode );
+
+    }
+
+    @Override
+    public void onPlayerError(ExoPlaybackException error) {
+        Log.d(TAG, "onPlayerError: " + error.getMessage());
+
+    }
+
+    @Override
+    public void onPositionDiscontinuity() {
+        Log.d(TAG, "onPositionDiscontinuity");
+
+    }
+
+    @Override
+    public void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {
+        Log.d(TAG, "onPlaybackParametersChanged : " + playbackParameters.toString());
+
+    }
 }

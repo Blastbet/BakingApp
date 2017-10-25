@@ -30,7 +30,7 @@ public class RecipeStepFragment extends Fragment implements RecipeStepLoader.Cal
 
     private static final String TAG = RecipeStepFragment.class.getSimpleName();
 
-    private static final String KEY_RECIPE_ID = "recipe_id";
+    public static final String KEY_RECIPE_ID = "recipe_id";
     private OnRecipeStepFragmentInteractionListener mListener;
 
     private int mRecipeId;

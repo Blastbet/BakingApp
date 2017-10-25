@@ -29,27 +29,30 @@ public class MainActivity extends AppCompatActivity
         ButterKnife.bind(this);
         setSupportActionBar(mToolbar);
 
-        RecipeFragment rf = new RecipeFragment();
-        ViewGroup.LayoutParams params = new ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT);
-        getSupportFragmentManager().beginTransaction()
-                .add(R.id.container_fragment, rf, getString(R.string.recipe_list_fragment_tag))
-                .commit();
+        if (savedInstanceState == null) {
+            Log.d(TAG, "CREATING NEW, savedinstancestate = null");
+            RecipeFragment rf = new RecipeFragment();
+            ViewGroup.LayoutParams params = new ViewGroup.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT);
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.container_fragment, rf, getString(R.string.recipe_list_fragment_tag))
+                    .commit();
+        }
+        if (savedInstanceState != null) {
+            if (savedInstanceState.containsKey(RecipeStepFragment.KEY_RECIPE_ID)) {
+                Log.d(TAG, "Recipe ID: " + savedInstanceState.getInt(RecipeStepFragment.KEY_RECIPE_ID));
+            }
+
+            if (savedInstanceState.containsKey(RecipeStepDetailsFragment.KEY_RECIPE_STEP)) {
+                Log.d(TAG, "Recipe ID: " + savedInstanceState.getParcelable(RecipeStepDetailsFragment.KEY_RECIPE_STEP));
+            }
+        }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-
-        RecipeFragment rf = (RecipeFragment) getSupportFragmentManager()
-                .findFragmentByTag(getString(R.string.recipe_list_fragment_tag));
-
-        if (rf != null)
-        {
-            Log.d(TAG, "onResume - update recipes.");
-            rf.updateRecipes();
-        }
     }
 
     @Override

@@ -66,9 +66,15 @@ public class RecipeFragment extends Fragment implements RecipeLoader.Callbacks {
 
     public void updateRecipes() {
         Log.d(TAG, "update recipes.");
-        RecipeSyncAdapter.syncRecipesNow(getContext());
+        RecipeSyncAdapter.syncRecipesNow(getActivity());
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        Log.d(TAG, "onResume - update recipes.");
+        updateRecipes();
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {

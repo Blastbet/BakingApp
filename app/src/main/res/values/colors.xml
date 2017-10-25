@@ -8,4 +8,6 @@
     <color name="colorAccentDark">#c25e00</color>
     <color name="colorPrimaryText">#000000</color>
     <color name="colorAccentText">#000000</color>
+
+    <color name="colorOverlayMask">#80000000</color>
 </resources>
