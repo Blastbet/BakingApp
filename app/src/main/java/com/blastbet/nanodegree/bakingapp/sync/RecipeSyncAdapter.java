@@ -179,9 +179,9 @@ public class RecipeSyncAdapter extends AbstractThreadedSyncAdapter {
             cv = getBaseRecipe(r);
             resolver.insert(RecipeEntry.CONTENT_URI, cv);
             v = getRecipeIngredients(r);
-            resolver.bulkInsert(IngredientEntry.CONTENT_URI, v);
+            resolver.bulkInsert(IngredientEntry.buildUri(r.getId()), v);
             v = getRecipeSteps(r);
-            resolver.bulkInsert(StepEntry.CONTENT_URI, v);
+            resolver.bulkInsert(StepEntry.buildUri(r.getId()), v);
         }
     }
 

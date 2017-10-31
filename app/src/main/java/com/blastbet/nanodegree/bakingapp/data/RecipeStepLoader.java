@@ -23,18 +23,12 @@ public class RecipeStepLoader implements LoaderManager.LoaderCallbacks<Cursor> {
             StepEntry.TABLE_NAME + "." + StepEntry.COLUMN_RECIPE_ID,
             StepEntry.TABLE_NAME + "." + StepEntry.COLUMN_INDEX,
             StepEntry.TABLE_NAME + "." + StepEntry.COLUMN_SHORT_DESCRIPTION,
-            StepEntry.TABLE_NAME + "." + StepEntry.COLUMN_DESCRIPTION,
-            StepEntry.TABLE_NAME + "." + StepEntry.COLUMN_VIDEO_URL,
-            StepEntry.TABLE_NAME + "." + StepEntry.COLUMN_THUMBNAIL_URL
     };
 
     //static final int COL_ROW_ID = 0;
     public static final int COL_RECIPE_ID = 0;
     public static final int COL_STEP_INDEX             = 1;
     public static final int COL_STEP_SHORT_DESCRIPTION = 2;
-    public static final int COL_STEP_DESCRIPTION       = 3;
-    public static final int COL_STEP_VIDEO_URL         = 4;
-    public static final int COL_STEP_THUMBNAIL_URL     = 5;
 
     private static final int RECIPE_STEP_LOADER = 1;
 
@@ -69,7 +63,7 @@ public class RecipeStepLoader implements LoaderManager.LoaderCallbacks<Cursor> {
     public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
         int recipeId = bundle.getInt(KEY_RECIPE_ID);
         final String sortOrder = StepEntry.COLUMN_INDEX + " ASC";
-        return new CursorLoader(mContext, StepEntry.buildUriForRecipe(recipeId),
+        return new CursorLoader(mContext, StepEntry.buildUri(recipeId),
                 RECIPE_STEP_COLUMNS,
                 null, null, sortOrder);
     }

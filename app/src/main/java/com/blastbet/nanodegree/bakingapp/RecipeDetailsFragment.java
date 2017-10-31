@@ -7,6 +7,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,7 +15,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.blastbet.nanodegree.bakingapp.data.RecipeStepLoader;
-import com.blastbet.nanodegree.bakingapp.recipe.RecipeStep;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -26,9 +26,9 @@ import butterknife.Unbinder;
  * Activities containing this fragment MUST implement the {@link OnRecipeStepFragmentInteractionListener}
  * interface.
  */
-public class RecipeStepFragment extends Fragment implements RecipeStepLoader.Callbacks {
+public class RecipeDetailsFragment extends Fragment implements RecipeStepLoader.Callbacks {
 
-    private static final String TAG = RecipeStepFragment.class.getSimpleName();
+    private static final String TAG = RecipeDetailsFragment.class.getSimpleName();
 
     public static final String KEY_RECIPE_ID = "recipe_id";
     private OnRecipeStepFragmentInteractionListener mListener;
@@ -36,7 +36,7 @@ public class RecipeStepFragment extends Fragment implements RecipeStepLoader.Cal
     private int mRecipeId;
 
     private RecipeStepLoader mStepLoader;
-    private RecipeStepRecyclerViewAdapter mRecipeAdapter;
+    private RecipeDetailsRecyclerViewAdapter mRecipeAdapter;
 
     @BindView(R.id.list) RecyclerView mRecyclerView;
     @BindView(R.id.empty_view) TextView mEmptyView;
@@ -47,12 +47,12 @@ public class RecipeStepFragment extends Fragment implements RecipeStepLoader.Cal
      * Mandatory empty constructor for the fragment manager to instantiate the
      * fragment (e.g. upon screen orientation changes).
      */
-    public RecipeStepFragment() {
+    public RecipeDetailsFragment() {
         mRecipeId = -1;
     }
 
-    static RecipeStepFragment newInstance(int recipeId) {
-        RecipeStepFragment fragment = new RecipeStepFragment();
+    static RecipeDetailsFragment newInstance(int recipeId) {
+        RecipeDetailsFragment fragment = new RecipeDetailsFragment();
         Bundle args = new Bundle();
         args.putInt(KEY_RECIPE_ID, recipeId);
         fragment.setArguments(args);
@@ -84,7 +84,7 @@ public class RecipeStepFragment extends Fragment implements RecipeStepLoader.Cal
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_recipe_step_list, container, false);
+        View view = inflater.inflate(R.layout.fragment_recipe_details, container, false);
         mUnbinder = ButterKnife.bind(this, view);
 
         mRecyclerView.addItemDecoration(new CardViewItemDecoration());
@@ -104,12 +104,42 @@ public class RecipeStepFragment extends Fragment implements RecipeStepLoader.Cal
                     context.getResources().getInteger(R.integer.weight_recipe_step_fragment));
             view.setLayoutParams(params);
         }
-        mRecipeAdapter = new RecipeStepRecyclerViewAdapter(mListener);
+        mRecipeAdapter = new RecipeDetailsRecyclerViewAdapter(mListener);
         mRecipeAdapter.setEmptyView(mEmptyView, mRecyclerView);
         mRecyclerView.setAdapter(mRecipeAdapter);
         return view;
     }
 
+    public void selectStep(long stepNumber) {
+        RecipeDetailsRecyclerViewAdapter.ViewHolder viewHolder = (RecipeDetailsRecyclerViewAdapter.ViewHolder)
+                mRecyclerView.findViewHolderForItemId(stepNumber);
+
+        viewHolder.selectItem();
+    }
+
+    public void selectNextStep(long stepNumber) {
+        Log.d(TAG, "Selecting step for stepnumber: " + Long.toString(stepNumber));
+        final int position = mRecyclerView.findViewHolderForItemId(stepNumber).getAdapterPosition() + 1;
+
+        RecipeDetailsRecyclerViewAdapter.ViewHolder viewHolder = (RecipeDetailsRecyclerViewAdapter.ViewHolder)
+                mRecyclerView.findViewHolderForAdapterPosition(position);
+        if (viewHolder != null) {
+            viewHolder.selectItem();
+        }
+    }
+
+    public void selectPreviousStep(long stepNumber) {
+        final int position = mRecyclerView.findViewHolderForItemId(stepNumber).getAdapterPosition() - 1;
+
+        if (position < 0) {
+            return;
+        }
+        RecipeDetailsRecyclerViewAdapter.ViewHolder viewHolder = (RecipeDetailsRecyclerViewAdapter.ViewHolder)
+                mRecyclerView.findViewHolderForAdapterPosition(position);
+        if (viewHolder != null) {
+            viewHolder.selectItem();
+        }
+    }
 
     @Override
     public void onDestroyView() {
@@ -147,6 +177,6 @@ public class RecipeStepFragment extends Fragment implements RecipeStepLoader.Cal
     }
 
     public interface OnRecipeStepFragmentInteractionListener {
-        void onRecipeStepClicked(RecipeStep step);
+        void onRecipeStepClicked(int recipeId, int stepNumber, int stepCount);
     }
 }

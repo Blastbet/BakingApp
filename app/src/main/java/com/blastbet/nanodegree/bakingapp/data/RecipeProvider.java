@@ -19,45 +19,54 @@ import android.util.Log;
 
 public class RecipeProvider extends ContentProvider {
 
-    private static final String LOG_TAG = RecipeProvider.class.getSimpleName();
+    private static final String TAG = RecipeProvider.class.getSimpleName();
 
     private static final UriMatcher sUriMatcher = buildUriMatcher();
 
-    private static final int RECIPE             = 100;
-    private static final int RECIPE_WITH_ID     = 101;
+    private static final int RECIPES = 100;
+    private static final int RECIPES_WITH_ID = 101;
 
-    private static final int INGREDIENT         = 200;
-    private static final int INGREDIENT_WITH_ID = 201;
+    private static final int INGREDIENTS = 200;
 
-    private static final int STEP               = 300;
-    private static final int STEP_WITH_ID       = 301;
+    private static final int STEPS = 300;
+    private static final int STEPS_WITH_INDEX = 301;
 
     RecipeDBHelper mOpenHelper;
 
     static UriMatcher buildUriMatcher() {
         final UriMatcher matcher = new UriMatcher(UriMatcher.NO_MATCH);
         final String AUTHORITY = RecipeContract.CONTENT_AUTHORITY;
+        final String recipePath = RecipeContract.PATH_RECIPES + "/#";
 
-        matcher.addURI(AUTHORITY, RecipeContract.PATH_RECIPE,            RECIPE);
-        matcher.addURI(AUTHORITY, RecipeContract.PATH_RECIPE + "/#",     RECIPE_WITH_ID);
+        matcher.addURI(AUTHORITY, RecipeContract.PATH_RECIPES, RECIPES);
+        matcher.addURI(AUTHORITY, recipePath, RECIPES_WITH_ID);
 
-        matcher.addURI(AUTHORITY, RecipeContract.PATH_INGREDIENT,        INGREDIENT);
-        matcher.addURI(AUTHORITY, RecipeContract.PATH_INGREDIENT + "/#", INGREDIENT_WITH_ID);
+        matcher.addURI(AUTHORITY, recipePath +
+                "/" + RecipeContract.PATH_INGREDIENTS, INGREDIENTS);
 
-        matcher.addURI(AUTHORITY, RecipeContract.PATH_STEP,        STEP);
-        matcher.addURI(AUTHORITY, RecipeContract.PATH_STEP + "/#", STEP_WITH_ID);
+        matcher.addURI(AUTHORITY, recipePath +
+                "/" + RecipeContract.PATH_STEPS, STEPS);
 
+        matcher.addURI(AUTHORITY, recipePath +
+                "/" + RecipeContract.PATH_STEPS + "/#", STEPS_WITH_INDEX);
+
+        Log.d(TAG, "matcher STEPS_WITH_INDEX: " + recipePath +
+                "/" + RecipeContract.PATH_STEPS + "/#");
         return matcher;
     }
 
     private static final String sRecipeIdSelection =
             RecipeEntry.TABLE_NAME + "." + RecipeEntry.COLUMN_ID + " = ? ";
 
-    private static final String sIngredientIdSelection =
+    private static final String sIngredientSelection =
             IngredientEntry.TABLE_NAME + "." + IngredientEntry.COLUMN_RECIPE_ID + " = ? ";
 
-    private static final String sStepIdSelection =
+    private static final String sStepSelection =
             StepEntry.TABLE_NAME + "." + StepEntry.COLUMN_RECIPE_ID + " = ? ";
+
+    private static final String sStepIndexSelection =
+            StepEntry.TABLE_NAME + "." + StepEntry.COLUMN_RECIPE_ID + " = ? AND " +
+            StepEntry.TABLE_NAME + "." + StepEntry.COLUMN_INDEX + " = ?";
 
     private static final String sIndexSortAscending = StepEntry.COLUMN_INDEX + " ASC";
     private static final String sIdSortAscending = StepEntry.COLUMN_INDEX + " ASC";
@@ -65,6 +74,10 @@ public class RecipeProvider extends ContentProvider {
 
     private static Long getIdFromUri(Uri uri) {
         return Long.parseLong(uri.getPathSegments().get(1));
+    }
+
+    private static Long getStepFromUri(Uri uri) {
+        return Long.parseLong(uri.getPathSegments().get(3));
     }
 
     @Override
@@ -76,50 +89,63 @@ public class RecipeProvider extends ContentProvider {
     @Nullable
     @Override
     public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
-        Log.d(LOG_TAG, "At query " + uri.toString());
+        Log.d(TAG, "At query " + uri.toString());
         final SQLiteDatabase db = mOpenHelper.getReadableDatabase();
 
         final int match = sUriMatcher.match(uri);
 
         long recipeId;
 
+        if (selection != null) {
+            Log.d(TAG, "selection: " + selection + " *** with args: " + selectionArgs[0].toString());
+        }
         Cursor retCursor = null;
         switch (match) {
-            case RECIPE:
+            case RECIPES:
                 retCursor = db.query(RecipeEntry.TABLE_NAME,
                         projection, selection, selectionArgs, null, null,
                         RecipeEntry.COLUMN_ID + " ASC");
                 break;
-            case RECIPE_WITH_ID:
+            case RECIPES_WITH_ID:
                 recipeId = getIdFromUri(uri);
                 retCursor = db.query(RecipeEntry.TABLE_NAME,
                         projection, sRecipeIdSelection, new String[]{Long.toString(recipeId)},
                         null, null, sortOrder);
                 break;
-            case INGREDIENT:
-                retCursor = db.query(IngredientEntry.TABLE_NAME,
-                        projection, selection, selectionArgs, null, null,
-                        IngredientEntry.COLUMN_RECIPE_ID + " ASC");
-                break;
-            case INGREDIENT_WITH_ID:
+            case INGREDIENTS:
+//                retCursor = db.query(IngredientEntry.TABLE_NAME,
+//                        projection, selection, selectionArgs, null, null,
+//                        IngredientEntry.COLUMN_RECIPE_ID + " ASC");
+//                break;
+//            case INGREDIENTS_WITH_ID:
                 recipeId = getIdFromUri(uri);
                 retCursor = db.query(IngredientEntry.TABLE_NAME,
-                        projection, sIngredientIdSelection, new String[]{Long.toString(recipeId)},
+                        projection, sIngredientSelection, new String[]{Long.toString(recipeId)},
                         null, null,
                         IngredientEntry._ID + " ASC");
                 break;
-            case STEP:
-                retCursor = db.query(StepEntry.TABLE_NAME,
-                        projection, selection, selectionArgs, null, null,
-                        StepEntry.COLUMN_RECIPE_ID + " ASC");
-                break;
-            case STEP_WITH_ID:
+            case STEPS:
+//                retCursor = db.query(StepEntry.TABLE_NAME,
+//                        projection, selection, selectionArgs, null, null,
+//                        StepEntry.COLUMN_RECIPE_ID + " ASC");
+//                break;
+//            case STEPS_WITH_ID:
                 recipeId = getIdFromUri(uri);
                 retCursor = db.query(StepEntry.TABLE_NAME,
-                        projection, sStepIdSelection, new String[]{Long.toString(recipeId)},
+                        projection, sStepSelection, new String[]{Long.toString(recipeId)},
                         null, null,
                         StepEntry.COLUMN_INDEX + " ASC");
                 break;
+            case STEPS_WITH_INDEX:
+                recipeId = getIdFromUri(uri);
+                long stepIndex = getStepFromUri(uri);
+                retCursor = db.query(StepEntry.TABLE_NAME,
+                        projection, sStepIndexSelection,
+                        new String[]{Long.toString(recipeId), Long.toString(stepIndex)},
+                        null, null,
+                        StepEntry.COLUMN_INDEX + " ASC");
+                break;
+
             default:
                 throw new UnsupportedOperationException("Unsupported uri: " + uri);
         }
@@ -132,14 +158,16 @@ public class RecipeProvider extends ContentProvider {
     public String getType(Uri uri) {
         final int match = sUriMatcher.match(uri);
         switch (match) {
-            case RECIPE:
+            case RECIPES:
                 return RecipeEntry.CONTENT_TYPE;
-            case RECIPE_WITH_ID:
+            case RECIPES_WITH_ID:
                 return RecipeEntry.CONTENT_ITEM_TYPE;
-            case INGREDIENT_WITH_ID:
+            case INGREDIENTS:
                 return IngredientEntry.CONTENT_TYPE;
-            case STEP_WITH_ID:
+            case STEPS:
                 return StepEntry.CONTENT_TYPE;
+            case STEPS_WITH_INDEX:
+                return StepEntry.CONTENT_ITEM_TYPE;
             default:
                 throw new UnsupportedOperationException("Unsupported uri: " + uri);
         }
@@ -148,68 +176,58 @@ public class RecipeProvider extends ContentProvider {
     @Nullable
     @Override
     public Uri insert(Uri uri, ContentValues contentValues) {
-        Log.d(LOG_TAG, "At insert " + uri.toString());
+        Log.d(TAG, "At insert " + uri.toString());
         final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
         final int match = sUriMatcher.match(uri);
         Uri returnUri;
         long _id;
         switch (match) {
-            case RECIPE:
+            case RECIPES:
                 _id = db.insertWithOnConflict(
                         RecipeEntry.TABLE_NAME,
                         null,
                         contentValues,
                         SQLiteDatabase.CONFLICT_REPLACE);
                 if (_id > 0) {
-                    returnUri = RecipeEntry.buildUri(_id);
+                    returnUri = RecipeEntry.CONTENT_URI;
                 } else {
                     throw new android.database.SQLException("Failed to insert row into " + uri);
                 }
                 break;
-            case INGREDIENT:
+            case INGREDIENTS:
                 _id = db.insertWithOnConflict(
                         IngredientEntry.TABLE_NAME,
                         null,
                         contentValues,
                         SQLiteDatabase.CONFLICT_REPLACE);
                 if (_id > 0) {
-                    returnUri = IngredientEntry.buildUri(_id);
+                    returnUri = IngredientEntry.buildUri(
+                            contentValues.getAsInteger(IngredientEntry.COLUMN_RECIPE_ID));
                 } else {
                     throw new android.database.SQLException("Failed to insert row into " + uri);
                 }
                 break;
-            case INGREDIENT_WITH_ID:
-                _id = db.insertWithOnConflict(
-                        IngredientEntry.TABLE_NAME,
-                        null,
-                        contentValues,
-                        SQLiteDatabase.CONFLICT_REPLACE);
-                if (_id > 0) {
-                    returnUri = IngredientEntry.buildUri(_id);
-                } else {
-                    throw new android.database.SQLException("Failed to insert row into " + uri);
-                }
-                break;
-            case STEP:
+            case STEPS:
                 _id = db.insertWithOnConflict(
                         StepEntry.TABLE_NAME,
                         null,
                         contentValues,
                         SQLiteDatabase.CONFLICT_REPLACE);
                 if (_id > 0) {
-                    returnUri = StepEntry.buildUri(_id);
+                    returnUri = StepEntry.buildUri(
+                            contentValues.getAsInteger(StepEntry.COLUMN_RECIPE_ID));
                 } else {
                     throw new android.database.SQLException("Failed to insert row into " + uri);
                 }
                 break;
-            case STEP_WITH_ID:
+            case STEPS_WITH_INDEX:
                 _id = db.insertWithOnConflict(
                         StepEntry.TABLE_NAME,
                         null,
                         contentValues,
                         SQLiteDatabase.CONFLICT_REPLACE);
                 if (_id > 0) {
-                    returnUri = StepEntry.buildUri(_id);
+                    returnUri = StepEntry.buildUriForRecipeStep(getIdFromUri(uri), getStepFromUri(uri));
                 } else {
                     throw new android.database.SQLException("Failed to insert row into " + uri);
                 }
@@ -229,31 +247,31 @@ public class RecipeProvider extends ContentProvider {
         final int match = sUriMatcher.match(uri);
         int numRowsDeleted;
         long id;
-        Log.d(LOG_TAG, "At delete " + uri.toString() + " match: " + Integer.toString(match));
+        Log.d(TAG, "At delete " + uri.toString() + " match: " + Integer.toString(match));
 
         switch (match) {
-            case RECIPE:
+            case RECIPES:
                 numRowsDeleted = db.delete(RecipeEntry.TABLE_NAME, selection, selectionArgs);
                 break;
-            case RECIPE_WITH_ID:
+            case RECIPES_WITH_ID:
                 id = getIdFromUri(uri);
                 numRowsDeleted = db.delete(RecipeEntry.TABLE_NAME, sRecipeIdSelection,
                         new String[]{Long.toString(id)});
                 break;
-            case INGREDIENT:
-                numRowsDeleted = db.delete(IngredientEntry.TABLE_NAME, selection, selectionArgs);
-                break;
-            case INGREDIENT_WITH_ID:
+            case INGREDIENTS:
+//                numRowsDeleted = db.delete(IngredientEntry.TABLE_NAME, selection, selectionArgs);
+//                break;
+//            case INGREDIENTS_WITH_ID:
                 id = getIdFromUri(uri);
-                numRowsDeleted = db.delete(IngredientEntry.TABLE_NAME, sIngredientIdSelection,
+                numRowsDeleted = db.delete(IngredientEntry.TABLE_NAME, sIngredientSelection,
                         new String[]{Long.toString(id)});
                 break;
-            case STEP:
-                numRowsDeleted = db.delete(StepEntry.TABLE_NAME, selection, selectionArgs);
-                break;
-            case STEP_WITH_ID:
+            case STEPS:
+//                numRowsDeleted = db.delete(StepEntry.TABLE_NAME, selection, selectionArgs);
+//                break;
+//            case STEPS_WITH_ID:
                 id = getIdFromUri(uri);
-                numRowsDeleted = db.delete(StepEntry.TABLE_NAME, sStepIdSelection,
+                numRowsDeleted = db.delete(StepEntry.TABLE_NAME, sStepSelection,
                         new String[]{Long.toString(id)});
                 break;
             default:
@@ -272,31 +290,31 @@ public class RecipeProvider extends ContentProvider {
         int numRowsUpdated;
         long id;
 
-        Log.d(LOG_TAG, "At update " + uri.toString());
+        Log.d(TAG, "At update " + uri.toString());
 
         switch (match) {
-            case RECIPE:
+            case RECIPES:
                 numRowsUpdated = db.update(RecipeEntry.TABLE_NAME, contentValues, selection, selectionArgs);
                 break;
-            case RECIPE_WITH_ID:
+            case RECIPES_WITH_ID:
                 id = getIdFromUri(uri);
                 numRowsUpdated = db.update(RecipeEntry.TABLE_NAME, contentValues, sRecipeIdSelection,
                         new String[]{Long.toString(id)});
                 break;
-            case INGREDIENT:
-                numRowsUpdated = db.update(IngredientEntry.TABLE_NAME, contentValues, selection, selectionArgs);
-                break;
-            case INGREDIENT_WITH_ID:
+            case INGREDIENTS:
+//                numRowsUpdated = db.update(IngredientEntry.TABLE_NAME, contentValues, selection, selectionArgs);
+//                break;
+//            case INGREDIENTS_WITH_ID:
                 id = getIdFromUri(uri);
-                numRowsUpdated = db.update(IngredientEntry.TABLE_NAME, contentValues, sIngredientIdSelection,
+                numRowsUpdated = db.update(IngredientEntry.TABLE_NAME, contentValues, sIngredientSelection,
                         new String[]{Long.toString(id)});
                 break;
-            case STEP:
-                numRowsUpdated = db.update(StepEntry.TABLE_NAME, contentValues, selection, selectionArgs);
-                break;
-            case STEP_WITH_ID:
+            case STEPS:
+//                numRowsUpdated = db.update(StepEntry.TABLE_NAME, contentValues, selection, selectionArgs);
+//                break;
+//            case STEPS_WITH_ID:
                 id = getIdFromUri(uri);
-                numRowsUpdated = db.update(StepEntry.TABLE_NAME, contentValues, sStepIdSelection,
+                numRowsUpdated = db.update(StepEntry.TABLE_NAME, contentValues, sStepSelection,
                         new String[]{Long.toString(id)});
                 break;
             default:
@@ -318,13 +336,13 @@ public class RecipeProvider extends ContentProvider {
         String table;
 
         switch (match) {
-            case RECIPE:
+            case RECIPES:
                 table = RecipeEntry.TABLE_NAME;
                 break;
-            case STEP:
+            case STEPS:
                 table = StepEntry.TABLE_NAME;
                 break;
-            case INGREDIENT:
+            case INGREDIENTS:
                 table = IngredientEntry.TABLE_NAME;
                 break;
             default:
@@ -334,7 +352,7 @@ public class RecipeProvider extends ContentProvider {
         db.beginTransaction();
         try {
             for (ContentValues value : values) {
-                Log.v(LOG_TAG, "Inserting to recipe table: " + value.toString());
+                Log.v(TAG, "Inserting to recipe table: " + value.toString());
                 final long _id = db.insertWithOnConflict(
                         table,
                         null,
@@ -346,7 +364,7 @@ public class RecipeProvider extends ContentProvider {
         } finally {
             db.endTransaction();
         }
-        Log.v(LOG_TAG, "notifying for change in uri: " + uri);
+        Log.v(TAG, "notifying for change in uri: " + uri);
         getContext().getContentResolver().notifyChange(uri, null);
         return numInserted;
     }

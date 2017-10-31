@@ -14,7 +14,6 @@ import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
-import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector;
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
@@ -42,8 +41,6 @@ public class PlayerHandler implements Player.EventListener {
     private static PlayerHandler instanceS;
 
     private SimpleExoPlayer mPlayer;
-    private MediaSource mMediaSource;
-    private MediaSessionConnector mMediaSessionConnector;
     private String mUrl;
 
     private PlayerHandler() {
@@ -56,7 +53,17 @@ public class PlayerHandler implements Player.EventListener {
         return instanceS;
     }
 
-    public SimpleExoPlayer getPlayer(Context context, String url) {
+    public void releasePlayer() {
+        if (mPlayer != null) {
+            Log.d(TAG, "Releasing player.");
+            mPlayer.stop();
+            mPlayer.release();
+            mPlayer = null;
+            mUrl = null;
+        }
+    }
+
+    public SimpleExoPlayer getPlayer(Context context, String url, Player.EventListener listener) {
         if (mPlayer == null) {
             Handler mainHandler = new Handler();
 
@@ -70,6 +77,8 @@ public class PlayerHandler implements Player.EventListener {
             mPlayer = ExoPlayerFactory.newSimpleInstance(
                     new DefaultRenderersFactory(context),
                     trackSelector, new DefaultLoadControl());
+            mPlayer.addListener(listener);
+            mPlayer.addListener(this);
         }
 
         if (url == null) {
@@ -89,7 +98,6 @@ public class PlayerHandler implements Player.EventListener {
                     new DefaultExtractorsFactory(),
                     null, null);
 
-            mPlayer.addListener(this);
             mPlayer.prepare(mediaSource);
         }
 

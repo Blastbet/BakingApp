@@ -1,8 +1,12 @@
 package com.blastbet.nanodegree.bakingapp;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.database.Cursor;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -11,11 +15,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.blastbet.nanodegree.bakingapp.connection.ConnectivityMonitor;
+import com.blastbet.nanodegree.bakingapp.data.RecipeStepDetailsLoader;
 import com.blastbet.nanodegree.bakingapp.player.PlayerHandler;
 import com.blastbet.nanodegree.bakingapp.recipe.RecipeStep;
 import com.google.android.exoplayer2.ExoPlaybackException;
@@ -31,13 +37,23 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 
-public class RecipeStepDetailsFragment extends Fragment implements Player.EventListener {
+public class RecipeStepDetailsFragment extends Fragment
+        implements Player.EventListener
+        , SharedPreferences.OnSharedPreferenceChangeListener
+        , RecipeStepDetailsLoader.Callbacks {
 
     private static final String TAG = RecipeStepDetailsFragment.class.getSimpleName();
 
-    private static final String KEY_RECIPE_ID = "recipe_id";
-    private RecipeStep mRecipeStep;
+    private RecipeStepDetailsLoader mLoader;
+    private Cursor mData;
+
+    private int mRecipeId;
+    private int mRecipeStep;
+    private int mRecipeStepCount;
+
     private SimpleExoPlayer mPlayer;
+
+    private boolean mIsConnected;
 
     @BindView(R.id.recipe_step_container) LinearLayout mContainer;
     @BindView(R.id.player_recipe_step_instruction) SimpleExoPlayerView mPlayerView;
@@ -45,37 +61,83 @@ public class RecipeStepDetailsFragment extends Fragment implements Player.EventL
     @BindView(R.id.overlay_player_controls) LinearLayout mPlayerOverlayControls;
     @BindView(R.id.pause_button) ImageButton mButtonPause;
     @BindView(R.id.rewind_button) ImageButton mButtonRewind;*/
+    @BindView(R.id.text_player_alert) TextView mPlayerAlertText;
     @BindView(R.id.player_loading_overlay) FrameLayout mPlayerLoadingOverlay;
     @BindView(R.id.text_recipe_step_instruction) TextView mTextView;
 
+    Button mPreviousButton;
+    Button mNextButton;
+
+    public static final String KEY_RECIPE_ID = "recipe_id";
     public static final String KEY_RECIPE_STEP = "recipe_step";
+    public static final String KEY_RECIPE_STEP_COUNT = "recipe_step_count";
+
+    private OnRecipeStepDetailsFragmentInteractionListener mListener;
 
     public RecipeStepDetailsFragment() {
-        // Required empty public constructor
+        mRecipeId = -1;
+        mRecipeStep = -1;
     }
 
-    public static RecipeStepDetailsFragment newInstance(RecipeStep step) {
+    public static RecipeStepDetailsFragment newInstance(int recipeId, int recipeStep, int stepCount) {
         RecipeStepDetailsFragment fragment = new RecipeStepDetailsFragment();
         Bundle args = new Bundle();
-        args.putParcelable(KEY_RECIPE_STEP, step);
-        Log.d(TAG, "Creating new RecipeStepDetails for recipe step:" + step.toString());
+        args.putInt(KEY_RECIPE_ID, recipeId);
+        args.putInt(KEY_RECIPE_STEP, recipeStep);
+        args.putInt(KEY_RECIPE_STEP_COUNT, stepCount);
+        Log.d(TAG, "Creating new RecipeStepDetails for recipe " + recipeId
+                + ", step " + recipeStep
+                + " max step " + stepCount);
         fragment.setArguments(args);
         return fragment;
     }
 
+    private void swapCursor(Cursor cursor) {
+        mData = cursor;
+
+        if (mData == null || !mData.moveToFirst()) {
+            mData = null;
+            onDataUnavailable();
+        }
+        else {
+            mRecipeStep = mData.getInt(RecipeStepDetailsLoader.COL_STEP_INDEX);
+            setupViews();
+        }
+    }
+
+    public void setStep(int recipeId, int recipeStep, int recipeStepCount) {
+        mRecipeId = recipeId;
+        mRecipeStepCount = recipeStepCount;
+        mLoader.restartLoader(mRecipeId, recipeStep);
+    }
+/*
+
     public void setStepData(RecipeStep step) {
         mRecipeStep = step;
         Log.d(TAG, "Set data:" + mRecipeStep.toString());
+        if (!getResources().getBoolean(R.bool.landscape_only)) {
+            setupNavigationButtons();
+        }
         initPlayer();
     }
+*/
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            mRecipeStep = getArguments().getParcelable(KEY_RECIPE_STEP);
-            Log.d(TAG, "Arguments are not null. Recipestep is: " + mRecipeStep.toString());
+            mRecipeId = getArguments().getInt(KEY_RECIPE_ID);
+            mRecipeStep = getArguments().getInt(KEY_RECIPE_STEP);
+            mRecipeStepCount = getArguments().getInt(KEY_RECIPE_STEP_COUNT);
+            Log.d(TAG, "Arguments are not null. Recipestep is: " + mRecipeStep);
         }
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        mLoader = new RecipeStepDetailsLoader(getContext(), getLoaderManager(), this);
+        mLoader.initLoader(mRecipeId, mRecipeStep);
     }
 
     @Override
@@ -91,45 +153,91 @@ public class RecipeStepDetailsFragment extends Fragment implements Player.EventL
                     context.getResources().getInteger(R.integer.weight_recipe_step_details_fragment));
             view.setLayoutParams(params);
         }
-        else if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-            mContainer.setPadding(0,0,0,0);
-            ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
-            if (actionBar != null) {
-                actionBar.hide();
+        else {
+            addStepNavigationBar();
+            if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+                mContainer.setPadding(0,0,0,0);
+                ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
+                if (actionBar != null) {
+                    actionBar.hide();
+                }
             }
         }
         if (savedInstanceState != null) {
-            Log.d(TAG, "Recipe step: " + savedInstanceState.getParcelable(KEY_RECIPE_STEP));
-            mRecipeStep = savedInstanceState.getParcelable(KEY_RECIPE_STEP);
+            Log.d(TAG, "Recipe step: " + savedInstanceState.getInt(KEY_RECIPE_STEP));
+            mRecipeId = savedInstanceState.getInt(KEY_RECIPE_ID);
+            mRecipeStep = savedInstanceState.getInt(KEY_RECIPE_STEP);
+            mRecipeStepCount = savedInstanceState.getInt(KEY_RECIPE_STEP_COUNT);
         }
-/*
-        mPlayer = new SimpleExoPlayer()
-        mPlayer = mPlayerView.getPlayer();
-*/
-        //mPlayerView.setPlayer(mPlayer);
 
-        initPlayer();
-        Log.d(TAG, "**** Setting player to: " + mPlayer.toString());
-        Log.d(TAG, "**** Player surface:  " + mPlayerView.getVideoSurfaceView().toString());
-        mPlayerView.setPlayer(mPlayer);
-        mPlayerView.requestLayout();
-        mPlayer.addListener(this);
-        onPlayerStateChanged(mPlayer.getPlayWhenReady(), mPlayer.getPlaybackState());
-        /*mPlayerView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (mPlayer.getPlayWhenReady()) {
-                    mPlayer.setPlayWhenReady(false);
-                }
-                else {
-                    mPlayer.setPlayWhenReady(true);
-                }
-            }
-        });*/
+        // TODO: Check connectivity state and init player only if there is connectivity available.
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        if (preferences.getBoolean(ConnectivityMonitor.NETWORK_CONNECTIVITY_STATE_KEY, false)) {
+            mIsConnected = true;
+            setupViews();
+        }
+        else {
+            mIsConnected = false;
+            onDisconnected();
+        }
 
-        mTextView.setText(mRecipeStep.getDescription());
+        preferences.registerOnSharedPreferenceChangeListener(this);
         return view;
+    }
+
+    private void setupViews() {
+        if (mData != null && mData.moveToFirst()) {
+            final String url = mData.getString(RecipeStepDetailsLoader.COL_STEP_VIDEO_URL);
+            if (url == null || url.isEmpty()) {
+                Log.w(TAG, "Invalid empty URL for video!");
+
+            }
+            else {
+                initPlayer(url);
+
+                mPlayerView.setVisibility(View.VISIBLE);
+                mPlayerView.setPlayer(mPlayer);
+                mPlayerView.requestLayout();
+                onPlayerStateChanged(mPlayer.getPlayWhenReady(), mPlayer.getPlaybackState());
+                mPlayerAlertText.setVisibility(View.GONE);
+            }
+            String description = mData.getString(RecipeStepDetailsLoader.COL_STEP_DESCRIPTION);
+            mTextView.setText(description);
+
+            Log.d(TAG, "Description: " + description);
+            if (!getResources().getBoolean(R.bool.landscape_only)) {
+                setupNavigationButtons();
+            }
+
+        }
+        else {
+            onDataUnavailable();
+        }
+    }
+
+    private void onConnected() {
+        setupViews();
+    }
+
+    private void releasePlayer() {
+        mPlayerLoadingOverlay.setVisibility(View.GONE);
+        mPlayerView.hideController();
+        mPlayerView.setVisibility(View.GONE);
+        PlayerHandler.getInstance().releasePlayer();
+    }
+
+    private void onDisconnected() {
+        releasePlayer();
+        mPlayerAlertText.setText(R.string.network_connectivity_alert);
+        mPlayerAlertText.setVisibility(View.VISIBLE);
+    }
+
+    private void onDataUnavailable() {
+        releasePlayer();
+        mPlayerAlertText.setText(R.string.step_data_unavailable_alert);
+        mPlayerAlertText.setVisibility(View.VISIBLE);
+        mTextView.setText(R.string.step_data_unavailable_alert);
     }
 
     @Override
@@ -143,18 +251,75 @@ public class RecipeStepDetailsFragment extends Fragment implements Player.EventL
             }
             getActivity().getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         }
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
+        preferences.unregisterOnSharedPreferenceChangeListener(this);
     }
 
-    public void initPlayer() {
-        mPlayer = PlayerHandler.getInstance()
-                .getPlayer(getActivity(), mRecipeStep.getVideoURL());
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof OnRecipeStepDetailsFragmentInteractionListener) {
+            mListener = (OnRecipeStepDetailsFragmentInteractionListener) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement OnRecipeStepDetailsFragmentInteractionListener");
+        }
+    }
+
+    public void initPlayer(String url) {
+        Log.d(TAG, "Starting buffering player from url " + url);
+        mPlayer = PlayerHandler.getInstance().getPlayer(getActivity(),
+                url,
+                this);
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        if (mRecipeStep != null) {
-            outState.putParcelable(KEY_RECIPE_STEP, mRecipeStep);
+        if (mRecipeStep >= 0) {
+            outState.putInt(KEY_RECIPE_ID, mRecipeId);
+            outState.putInt(KEY_RECIPE_STEP, mRecipeStep);
+            outState.putInt(KEY_RECIPE_STEP_COUNT, mRecipeStepCount);
+        }
+    }
+
+    private void addStepNavigationBar() {
+        LayoutInflater inflater = getLayoutInflater();
+        View view = inflater.inflate(R.layout.navigation_bar_step_details, mContainer, true);
+        mPreviousButton = (Button) view.findViewById(R.id.button_left);
+        mNextButton = (Button) view.findViewById(R.id.button_right);
+        mPreviousButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mLoader.restartLoader(mRecipeId, mRecipeStep - 1);
+            }
+        });
+        mNextButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mLoader.restartLoader(mRecipeId, mRecipeStep + 1);
+            }
+        });
+//        mContainer.addView(view, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+    }
+
+    private void setupNavigationButtons() {
+        Log.d(TAG, "Setting up navigation buttons, recipe step: " + mRecipeStep);
+        if (mPreviousButton == null || mNextButton == null) {
+            return;
+        }
+
+        if (mRecipeStep <= 0) {
+            mPreviousButton.setEnabled(false);
+        }
+        else {
+            mPreviousButton.setEnabled(true);
+        }
+        if (mRecipeStep >= (mRecipeStepCount - 1)) {
+            mNextButton.setEnabled(false);
+        }
+        else {
+            mNextButton.setEnabled(true);
         }
     }
 
@@ -182,10 +347,15 @@ public class RecipeStepDetailsFragment extends Fragment implements Player.EventL
             //mPlayerView.setControllerAutoShow(false);
             mPlayerView.hideController();
         }
-        else if (playbackState == Player.STATE_READY && playWhenReady) {
+        else if (playbackState == Player.STATE_READY) {
             // Push controls out of view here
             mPlayerLoadingOverlay.setVisibility(View.GONE);
-            mPlayerView.hideController();
+            if (playWhenReady) {
+                mPlayerView.hideController();
+            }
+            else {
+                mPlayerView.showController();
+            }
             //mPlayerView.setControllerAutoShow(true);
         }
         else {
@@ -218,4 +388,32 @@ public class RecipeStepDetailsFragment extends Fragment implements Player.EventL
         Log.d(TAG, "onPlaybackParametersChanged : " + playbackParameters.toString());
 
     }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
+        if (s.equals(ConnectivityMonitor.NETWORK_CONNECTIVITY_STATE_KEY)) {
+            if (sharedPreferences.getBoolean(ConnectivityMonitor.NETWORK_CONNECTIVITY_STATE_KEY, false)) {
+                onConnected();
+            }
+            else {
+                onDisconnected();
+            }
+        }
+    }
+
+    @Override
+    public void onLoadFinished(Cursor cursor) {
+        swapCursor(cursor);
+    }
+
+    @Override
+    public void onLoaderReset() {
+
+    }
+
+    public interface OnRecipeStepDetailsFragmentInteractionListener {
+        void onPreviousStepRequested(RecipeStep step);
+        void onNextStepRequested(RecipeStep step);
+    }
+
 }

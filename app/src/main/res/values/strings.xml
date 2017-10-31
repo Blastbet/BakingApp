@@ -17,5 +17,10 @@
     <string name="servings">Servings</string>
 
     <string name="formatted_servings">x %1$d</string>
+    <string name="previous_step">previous</string>
+    <string name="next_step">next</string>
+
+    <string name="network_connectivity_alert">No network connectivity!</string>
+    <string name="step_data_unavailable_alert">No data available for step!</string>
 
 </resources>

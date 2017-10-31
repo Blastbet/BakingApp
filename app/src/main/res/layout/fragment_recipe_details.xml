@@ -14,7 +14,7 @@
         android:layout_marginLeft="16dp"
         android:layout_marginRight="16dp"
         app:layoutManager="LinearLayoutManager"
-        tools:context="com.blastbet.nanodegree.bakingapp.RecipeStepFragment"
+        tools:context="com.blastbet.nanodegree.bakingapp.RecipeDetailsFragment"
         tools:listitem="@layout/recipe_step_list_item" />
 
     <TextView

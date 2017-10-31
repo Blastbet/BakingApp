@@ -15,7 +15,7 @@ import com.blastbet.nanodegree.bakingapp.data.RecipeContract.StepEntry;
  * Created by ilkka on 9.9.2017.
  */
 
-public class RecipeIngredientLoader implements LoaderManager.LoaderCallbacks<Cursor> {
+public class RecipeIngredientsLoader implements LoaderManager.LoaderCallbacks<Cursor> {
 
     private static final String KEY_RECIPE_ID = "recipe_id";
 
@@ -27,10 +27,10 @@ public class RecipeIngredientLoader implements LoaderManager.LoaderCallbacks<Cur
     };
 
     //static final int COL_ROW_ID = 0;
-    static final int COL_RECIPE_ID = 1;
-    static final int COL_INGREDIENT_NAME        = 2;
-    static final int COL_INGREDIENT_MEASURE     = 3;
-    static final int COL_INGREDIENT_QUANTITY    = 4;
+    static final int COL_RECIPE_ID = 0;
+    static final int COL_INGREDIENT_NAME        = 1;
+    static final int COL_INGREDIENT_MEASURE     = 2;
+    static final int COL_INGREDIENT_QUANTITY    = 3;
 
     private static final int RECIPE_INGREDIENT_LOADER = 2;
 
@@ -43,7 +43,7 @@ public class RecipeIngredientLoader implements LoaderManager.LoaderCallbacks<Cur
         void onLoaderReset();
     }
 
-    public RecipeIngredientLoader(Context context, LoaderManager manager, Callbacks callbacks) {
+    public RecipeIngredientsLoader(Context context, LoaderManager manager, Callbacks callbacks) {
         mContext = context;
         mManager = manager;
         mCallbacks = callbacks;
@@ -64,7 +64,7 @@ public class RecipeIngredientLoader implements LoaderManager.LoaderCallbacks<Cur
     @Override
     public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
         int recipeId = bundle.getInt(KEY_RECIPE_ID);
-        return new CursorLoader(mContext, IngredientEntry.buildUriForRecipe(recipeId),
+        return new CursorLoader(mContext, IngredientEntry.buildUri(recipeId),
                 RECIPE_INGREDIENT_COLUMNS,
                 null, null, null);
     }
