@@ -14,6 +14,8 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.blastbet.nanodegree.bakingapp.data.BakingLoader;
+import com.blastbet.nanodegree.bakingapp.data.RecipeIngredientsLoader;
 import com.blastbet.nanodegree.bakingapp.data.RecipeStepLoader;
 
 import butterknife.BindView;
@@ -26,7 +28,7 @@ import butterknife.Unbinder;
  * Activities containing this fragment MUST implement the {@link OnRecipeStepFragmentInteractionListener}
  * interface.
  */
-public class RecipeDetailsFragment extends Fragment implements RecipeStepLoader.Callbacks {
+public class RecipeDetailsFragment extends Fragment implements BakingLoader.Callbacks {
 
     private static final String TAG = RecipeDetailsFragment.class.getSimpleName();
 
@@ -36,6 +38,8 @@ public class RecipeDetailsFragment extends Fragment implements RecipeStepLoader.
     private int mRecipeId;
 
     private RecipeStepLoader mStepLoader;
+    private RecipeIngredientsLoader mIngredientLoader;
+
     private RecipeDetailsRecyclerViewAdapter mRecipeAdapter;
 
     @BindView(R.id.list) RecyclerView mRecyclerView;
@@ -78,7 +82,8 @@ public class RecipeDetailsFragment extends Fragment implements RecipeStepLoader.
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         mStepLoader = new RecipeStepLoader(getContext(), getLoaderManager(), this);
-        mStepLoader.initLoader(mRecipeId);
+        mStepLoader.init(mRecipeId);
+        mIngredientLoader = new RecipeIngredientsLoader(getContext(), getLoaderManager(), this);
     }
 
     @Override
@@ -167,13 +172,17 @@ public class RecipeDetailsFragment extends Fragment implements RecipeStepLoader.
     }
 
     @Override
-    public void onLoadFinished(Cursor cursor) {
-        mRecipeAdapter.swapCursor(cursor);
+    public void onLoadFinished(int id, Cursor cursor) {
+        if (id == mStepLoader.getLoaderId()) {
+            mRecipeAdapter.swapCursor(cursor);
+        }
     }
 
     @Override
-    public void onLoaderReset() {
-        mRecipeAdapter.swapCursor(null);
+    public void onLoaderReset(int id) {
+        if (id == mStepLoader.getLoaderId()) {
+            mRecipeAdapter.swapCursor(null);
+        }
     }
 
     public interface OnRecipeStepFragmentInteractionListener {

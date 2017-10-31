@@ -54,7 +54,7 @@ public class RecipeFragment extends Fragment implements RecipeLoader.Callbacks {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         mRecipeLoader = new RecipeLoader(getContext(), getLoaderManager(), this);
-        mRecipeLoader.initRecipeLoader();
+        mRecipeLoader.init(null);
     }
 
     // TODO: Customize parameter initialization
@@ -139,14 +139,18 @@ public class RecipeFragment extends Fragment implements RecipeLoader.Callbacks {
     }
 
     @Override
-    public void onLoadFinished(Cursor cursor) {
-        Log.d(TAG, "Received recipe cursor");
-        mRecipeAdapter.swapCursor(cursor);
+    public void onLoadFinished(int id, Cursor cursor) {
+        if (id == mRecipeLoader.getLoaderId()) {
+            Log.d(TAG, "Received recipe cursor");
+            mRecipeAdapter.swapCursor(cursor);
+        }
     }
 
     @Override
-    public void onLoaderReset() {
-        mRecipeAdapter.swapCursor(null);
+    public void onLoaderReset(int id) {
+        if (id == mRecipeLoader.getLoaderId()) {
+            mRecipeAdapter.swapCursor(null);
+        }
     }
 
     public interface OnRecipeListInteractionListener {

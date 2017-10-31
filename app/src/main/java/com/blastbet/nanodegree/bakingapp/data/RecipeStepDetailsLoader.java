@@ -14,7 +14,7 @@ import com.blastbet.nanodegree.bakingapp.data.RecipeContract.StepEntry;
  * Created by ilkka on 31.10.2017.
  */
 
-public class RecipeStepDetailsLoader implements LoaderManager.LoaderCallbacks<Cursor> {
+public class RecipeStepDetailsLoader extends BakingLoader {
 
     private static final String TAG = RecipeStepDetailsLoader.class.getSimpleName();
 
@@ -36,35 +36,23 @@ public class RecipeStepDetailsLoader implements LoaderManager.LoaderCallbacks<Cu
 
     private static final int RECIPE_STEP_DETAILS_LOADER = 3;
 
-    private Context mContext;
-    private LoaderManager mManager;
-    private Callbacks mCallbacks;
-
-    public interface Callbacks {
-        void onLoadFinished(Cursor cursor);
-        void onLoaderReset();
-    }
-
     public RecipeStepDetailsLoader(Context context, LoaderManager manager, Callbacks callbacks) {
-        mContext = context;
-        mManager = manager;
-        mCallbacks = callbacks;
+        super(context, manager, callbacks);
     }
 
-    public void initLoader(int recipeId, int recipeStep) {
+    public void init(int recipeId, int recipeStep) {
         Bundle args = new Bundle();
         args.putInt(KEY_RECIPE_ID, recipeId);
         args.putInt(KEY_RECIPE_STEP, recipeStep);
-        mManager.initLoader(RECIPE_STEP_DETAILS_LOADER, args, this);
+        init(args);
     }
 
-    public void restartLoader(int recipeId, int recipeStep) {
+    public void restart(int recipeId, int recipeStep) {
         Bundle args = new Bundle();
         args.putInt(KEY_RECIPE_ID, recipeId);
         args.putInt(KEY_RECIPE_STEP, recipeStep);
-        mManager.restartLoader(RECIPE_STEP_DETAILS_LOADER, args, this);
+        restart(args);
     }
-
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle bundle) {
@@ -73,17 +61,12 @@ public class RecipeStepDetailsLoader implements LoaderManager.LoaderCallbacks<Cu
 
         Log.d(TAG, "Creating new cursorloader for recipe: " + recipeId + " step number: " + recipeStep);
 
-        return new CursorLoader(mContext, StepEntry.buildUriForRecipeStep(recipeId, recipeStep),
+        return new CursorLoader(getContext(), StepEntry.buildUriForRecipeStep(recipeId, recipeStep),
                 RECIPE_STEP_COLUMNS, null, null, null);
     }
 
     @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        mCallbacks.onLoadFinished(data);
-    }
-
-    @Override
-    public void onLoaderReset(Loader<Cursor> loader) {
-        mCallbacks.onLoaderReset();
+    public int getLoaderId() {
+        return RECIPE_STEP_DETAILS_LOADER;
     }
 }

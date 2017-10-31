@@ -72,8 +72,6 @@ public class RecipeStepDetailsFragment extends Fragment
     public static final String KEY_RECIPE_STEP = "recipe_step";
     public static final String KEY_RECIPE_STEP_COUNT = "recipe_step_count";
 
-    private OnRecipeStepDetailsFragmentInteractionListener mListener;
-
     public RecipeStepDetailsFragment() {
         mRecipeId = -1;
         mRecipeStep = -1;
@@ -108,7 +106,7 @@ public class RecipeStepDetailsFragment extends Fragment
     public void setStep(int recipeId, int recipeStep, int recipeStepCount) {
         mRecipeId = recipeId;
         mRecipeStepCount = recipeStepCount;
-        mLoader.restartLoader(mRecipeId, recipeStep);
+        mLoader.restart(mRecipeId, recipeStep);
     }
 /*
 
@@ -137,7 +135,7 @@ public class RecipeStepDetailsFragment extends Fragment
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         mLoader = new RecipeStepDetailsLoader(getContext(), getLoaderManager(), this);
-        mLoader.initLoader(mRecipeId, mRecipeStep);
+        mLoader.init(mRecipeId, mRecipeStep);
     }
 
     @Override
@@ -255,17 +253,6 @@ public class RecipeStepDetailsFragment extends Fragment
         preferences.unregisterOnSharedPreferenceChangeListener(this);
     }
 
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        if (context instanceof OnRecipeStepDetailsFragmentInteractionListener) {
-            mListener = (OnRecipeStepDetailsFragmentInteractionListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnRecipeStepDetailsFragmentInteractionListener");
-        }
-    }
-
     public void initPlayer(String url) {
         Log.d(TAG, "Starting buffering player from url " + url);
         mPlayer = PlayerHandler.getInstance().getPlayer(getActivity(),
@@ -291,13 +278,13 @@ public class RecipeStepDetailsFragment extends Fragment
         mPreviousButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mLoader.restartLoader(mRecipeId, mRecipeStep - 1);
+                mLoader.restart(mRecipeId, mRecipeStep - 1);
             }
         });
         mNextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mLoader.restartLoader(mRecipeId, mRecipeStep + 1);
+                mLoader.restart(mRecipeId, mRecipeStep + 1);
             }
         });
 //        mContainer.addView(view, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -402,18 +389,16 @@ public class RecipeStepDetailsFragment extends Fragment
     }
 
     @Override
-    public void onLoadFinished(Cursor cursor) {
-        swapCursor(cursor);
+    public void onLoadFinished(int id, Cursor cursor) {
+        if (id == mLoader.getLoaderId()) {
+            swapCursor(cursor);
+        }
     }
 
     @Override
-    public void onLoaderReset() {
-
+    public void onLoaderReset(int id) {
+        if (id == mLoader.getLoaderId()) {
+            swapCursor(null);
+        }
     }
-
-    public interface OnRecipeStepDetailsFragmentInteractionListener {
-        void onPreviousStepRequested(RecipeStep step);
-        void onNextStepRequested(RecipeStep step);
-    }
-
 }
