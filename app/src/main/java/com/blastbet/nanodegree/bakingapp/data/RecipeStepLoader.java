@@ -39,18 +39,6 @@ public class RecipeStepLoader extends BakingLoader {
         return RECIPE_STEP_LOADER;
     }
 
-    public void init(int recipeId) {
-        Bundle args = new Bundle();
-        args.putInt(KEY_RECIPE_ID, recipeId);
-        init(args);
-    }
-
-    public void restart(int recipeId) {
-        Bundle args = new Bundle();
-        args.putInt(KEY_RECIPE_ID, recipeId);
-        restart(args);
-    }
-
     @Override
     public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
         int recipeId = bundle.getInt(KEY_RECIPE_ID);

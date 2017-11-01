@@ -5,6 +5,7 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -15,7 +16,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.blastbet.nanodegree.bakingapp.data.BakingLoader;
-import com.blastbet.nanodegree.bakingapp.data.RecipeIngredientsLoader;
 import com.blastbet.nanodegree.bakingapp.data.RecipeStepLoader;
 
 import butterknife.BindView;
@@ -38,10 +38,10 @@ public class RecipeDetailsFragment extends Fragment implements BakingLoader.Call
     private int mRecipeId;
 
     private RecipeStepLoader mStepLoader;
-    private RecipeIngredientsLoader mIngredientLoader;
 
     private RecipeDetailsRecyclerViewAdapter mRecipeAdapter;
 
+    @BindView(R.id.ingredients_card) CardView mIngredientsCard;
     @BindView(R.id.list) RecyclerView mRecyclerView;
     @BindView(R.id.empty_view) TextView mEmptyView;
 
@@ -83,7 +83,6 @@ public class RecipeDetailsFragment extends Fragment implements BakingLoader.Call
         super.onActivityCreated(savedInstanceState);
         mStepLoader = new RecipeStepLoader(getContext(), getLoaderManager(), this);
         mStepLoader.init(mRecipeId);
-        mIngredientLoader = new RecipeIngredientsLoader(getContext(), getLoaderManager(), this);
     }
 
     @Override
@@ -92,7 +91,8 @@ public class RecipeDetailsFragment extends Fragment implements BakingLoader.Call
         View view = inflater.inflate(R.layout.fragment_recipe_details, container, false);
         mUnbinder = ButterKnife.bind(this, view);
 
-        mRecyclerView.addItemDecoration(new CardViewItemDecoration());
+        int cardviewInsets = getResources().getDimensionPixelSize(R.dimen.recipe_detail_cardview_insets);
+        mRecyclerView.addItemDecoration(new CardViewItemDecoration(cardviewInsets));
         if (savedInstanceState != null) {
             mRecipeId = savedInstanceState.getInt(KEY_RECIPE_ID);
         }
@@ -112,39 +112,46 @@ public class RecipeDetailsFragment extends Fragment implements BakingLoader.Call
         mRecipeAdapter = new RecipeDetailsRecyclerViewAdapter(mListener);
         mRecipeAdapter.setEmptyView(mEmptyView, mRecyclerView);
         mRecyclerView.setAdapter(mRecipeAdapter);
+
+        mIngredientsCard.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mListener.onIngredientsClicked(mRecipeId);
+            }
+        });
         return view;
     }
 
-    public void selectStep(long stepNumber) {
-        RecipeDetailsRecyclerViewAdapter.ViewHolder viewHolder = (RecipeDetailsRecyclerViewAdapter.ViewHolder)
-                mRecyclerView.findViewHolderForItemId(stepNumber);
-
-        viewHolder.selectItem();
-    }
-
-    public void selectNextStep(long stepNumber) {
-        Log.d(TAG, "Selecting step for stepnumber: " + Long.toString(stepNumber));
-        final int position = mRecyclerView.findViewHolderForItemId(stepNumber).getAdapterPosition() + 1;
-
-        RecipeDetailsRecyclerViewAdapter.ViewHolder viewHolder = (RecipeDetailsRecyclerViewAdapter.ViewHolder)
-                mRecyclerView.findViewHolderForAdapterPosition(position);
-        if (viewHolder != null) {
-            viewHolder.selectItem();
-        }
-    }
-
-    public void selectPreviousStep(long stepNumber) {
-        final int position = mRecyclerView.findViewHolderForItemId(stepNumber).getAdapterPosition() - 1;
-
-        if (position < 0) {
-            return;
-        }
-        RecipeDetailsRecyclerViewAdapter.ViewHolder viewHolder = (RecipeDetailsRecyclerViewAdapter.ViewHolder)
-                mRecyclerView.findViewHolderForAdapterPosition(position);
-        if (viewHolder != null) {
-            viewHolder.selectItem();
-        }
-    }
+//    public void selectStep(long stepNumber) {
+//        RecipeDetailsRecyclerViewAdapter.ViewHolder viewHolder = (RecipeDetailsRecyclerViewAdapter.ViewHolder)
+//                mRecyclerView.findViewHolderForItemId(stepNumber);
+//
+//        viewHolder.selectItem();
+//    }
+//
+//    public void selectNextStep(long stepNumber) {
+//        Log.d(TAG, "Selecting step for stepnumber: " + Long.toString(stepNumber));
+//        final int position = mRecyclerView.findViewHolderForItemId(stepNumber).getAdapterPosition() + 1;
+//
+//        RecipeDetailsRecyclerViewAdapter.ViewHolder viewHolder = (RecipeDetailsRecyclerViewAdapter.ViewHolder)
+//                mRecyclerView.findViewHolderForAdapterPosition(position);
+//        if (viewHolder != null) {
+//            viewHolder.selectItem();
+//        }
+//    }
+//
+//    public void selectPreviousStep(long stepNumber) {
+//        final int position = mRecyclerView.findViewHolderForItemId(stepNumber).getAdapterPosition() - 1;
+//
+//        if (position < 0) {
+//            return;
+//        }
+//        RecipeDetailsRecyclerViewAdapter.ViewHolder viewHolder = (RecipeDetailsRecyclerViewAdapter.ViewHolder)
+//                mRecyclerView.findViewHolderForAdapterPosition(position);
+//        if (viewHolder != null) {
+//            viewHolder.selectItem();
+//        }
+//    }
 
     @Override
     public void onDestroyView() {
@@ -161,7 +168,7 @@ public class RecipeDetailsFragment extends Fragment implements BakingLoader.Call
             mListener = (OnRecipeStepFragmentInteractionListener) context;
         } else {
             throw new RuntimeException(context.toString()
-                    + " must implement OnListFragmentInteractionListener");
+                    + " must implement OnIngredientFragmentInteractionListener");
         }
     }
 
@@ -187,5 +194,6 @@ public class RecipeDetailsFragment extends Fragment implements BakingLoader.Call
 
     public interface OnRecipeStepFragmentInteractionListener {
         void onRecipeStepClicked(int recipeId, int stepNumber, int stepCount);
+        void onIngredientsClicked(int recipeId);
     }
 }

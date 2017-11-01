@@ -14,7 +14,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 public class RecipeDBHelper extends SQLiteOpenHelper {
 
-    private static final int DATABASE_VERSION = 5;
+    private static final int DATABASE_VERSION = 6;
 
     protected static final String DATABASE_NAME = "recipe.db";
 
@@ -59,6 +59,7 @@ public class RecipeDBHelper extends SQLiteOpenHelper {
                 IngredientEntry.COLUMN_NAME      + " TEXT NOT NULL, " +
                 IngredientEntry.COLUMN_MEASURE   + " TEXT NOT NULL, " +
                 IngredientEntry.COLUMN_QUANTITY  + " REAL NOT NULL, " +
+                "UNIQUE (" + IngredientEntry.COLUMN_RECIPE_ID + ", " + IngredientEntry.COLUMN_NAME + "), " +
                 "FOREIGN KEY (" + IngredientEntry.COLUMN_RECIPE_ID + ") " + SQL_RECIPE_ID_REFERENCE +
                 " );";
 

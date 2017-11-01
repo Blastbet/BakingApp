@@ -5,6 +5,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="horizontal"
     android:theme="@style/AppTheme.CardView"
+    app:cardElevation="@dimen/step_card_elevation"
     android:id="@+id/card_recipe_list_item">
 
     <TextView

@@ -113,6 +113,7 @@ public class RecipeFragment extends Fragment implements RecipeLoader.Callbacks {
         return view;
     }
 
+
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);

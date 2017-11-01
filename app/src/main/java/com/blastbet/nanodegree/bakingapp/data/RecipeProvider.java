@@ -119,6 +119,7 @@ public class RecipeProvider extends ContentProvider {
 //                break;
 //            case INGREDIENTS_WITH_ID:
                 recipeId = getIdFromUri(uri);
+                Log.d(TAG, "Querying ingredients for recipe no " + recipeId);
                 retCursor = db.query(IngredientEntry.TABLE_NAME,
                         projection, sIngredientSelection, new String[]{Long.toString(recipeId)},
                         null, null,

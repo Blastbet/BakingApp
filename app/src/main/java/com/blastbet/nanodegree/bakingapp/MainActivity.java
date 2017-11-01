@@ -16,7 +16,7 @@ import butterknife.ButterKnife;
 public class MainActivity extends AppCompatActivity
         implements RecipeFragment.OnRecipeListInteractionListener,
         RecipeDetailsFragment.OnRecipeStepFragmentInteractionListener,
-        RecipeStepDetailsFragment.OnRecipeStepDetailsFragmentInteractionListener {
+        IngredientFragment.OnIngredientFragmentInteractionListener {
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
@@ -39,8 +39,13 @@ public class MainActivity extends AppCompatActivity
             ViewGroup.LayoutParams params = new ViewGroup.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.MATCH_PARENT);
+
+            int containerId = R.id.container_fragment;
+            if (getResources().getBoolean(R.bool.landscape_only)) {
+                containerId = R.id.container_navigation;
+            }
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.container_fragment, rf, getString(R.string.recipe_list_fragment_tag))
+                    .add(containerId, rf, getString(R.string.recipe_list_fragment_tag))
                     .commit();
         }
         if (savedInstanceState != null) {
@@ -78,11 +83,16 @@ public class MainActivity extends AppCompatActivity
         RecipeFragment rf = (RecipeFragment) getSupportFragmentManager()
                 .findFragmentByTag(getString(R.string.recipe_list_fragment_tag));
 
-        RecipeDetailsFragment rsf = RecipeDetailsFragment.newInstance(recipeId);
+        int containerId = R.id.container_fragment;
+        if (getResources().getBoolean(R.bool.landscape_only)) {
+            containerId = R.id.container_navigation;
+        }
+
+        RecipeDetailsFragment rdf = RecipeDetailsFragment.newInstance(recipeId);
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction()
                 .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left, android.R.anim.slide_in_left, android.R.anim.slide_out_right)
                 .remove(rf)
-                .add(R.id.container_fragment, rsf, getString(R.string.recipe_step_list_fragment_tag));
+                .add(containerId, rdf, getString(R.string.recipe_step_list_fragment_tag));
 
         if (getResources().getBoolean(R.bool.landscape_only)) {
             RecipeStepDetailsFragment rsdf = new RecipeStepDetailsFragment();
@@ -106,10 +116,10 @@ public class MainActivity extends AppCompatActivity
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 
         if (!getResources().getBoolean(R.bool.landscape_only)) {
-            RecipeDetailsFragment rsf = (RecipeDetailsFragment) getSupportFragmentManager()
+            RecipeDetailsFragment rdf = (RecipeDetailsFragment) getSupportFragmentManager()
                     .findFragmentByTag(getString(R.string.recipe_step_list_fragment_tag));
 
-            transaction = transaction.remove(rsf);
+            transaction = transaction.remove(rdf);
         }
 
         rsdf = RecipeStepDetailsFragment.newInstance(recipeId, stepNumber, stepCount);
@@ -120,20 +130,27 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onPreviousStepRequested(RecipeStep step) {
-        RecipeDetailsFragment rsf = (RecipeDetailsFragment) getSupportFragmentManager()
-                .findFragmentByTag(getString(R.string.recipe_step_list_fragment_tag));
-        if (rsf != null) {
-            rsf.selectPreviousStep(step.getIndex());
+    public void onIngredientsClicked(int recipeId) {
+        int containerId = R.id.container_fragment;
+        if (getResources().getBoolean(R.bool.landscape_only)) {
+            containerId = R.id.container_navigation;
         }
+
+        IngredientFragment ingredientFragment = IngredientFragment.newInstance(recipeId);
+
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction()
+//                .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left, android.R.anim.slide_in_left, android.R.anim.slide_out_right)
+                .add(containerId, ingredientFragment, getString(R.string.ingredient_fragment_tag));
+        transaction.addToBackStack(null).commit();
     }
 
     @Override
-    public void onNextStepRequested(RecipeStep step) {
-        RecipeDetailsFragment rsf = (RecipeDetailsFragment) getSupportFragmentManager()
-                .findFragmentByTag(getString(R.string.recipe_step_list_fragment_tag));
-        if (rsf != null) {
-            rsf.selectNextStep(step.getIndex());
-        }
+    public void onListFragmentClicked() {
+        IngredientFragment ingredientFragment = (IngredientFragment) getSupportFragmentManager()
+                .findFragmentByTag(getString(R.string.ingredient_fragment_tag));
+
+        getSupportFragmentManager().beginTransaction()
+                .remove(ingredientFragment)
+                .commit();
     }
 }

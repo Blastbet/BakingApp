@@ -12,92 +12,20 @@ import android.widget.TextView;
 
 import com.blastbet.nanodegree.bakingapp.RecipeFragment.OnRecipeListInteractionListener;
 import com.blastbet.nanodegree.bakingapp.data.RecipeLoader;
+import com.blastbet.nanodegree.bakingapp.sync.BakingRecyclerViewAdapter;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class RecipeRecyclerViewAdapter extends RecyclerView.Adapter<RecipeRecyclerViewAdapter.ViewHolder> {
+public class RecipeRecyclerViewAdapter extends BakingRecyclerViewAdapter<RecipeRecyclerViewAdapter.ViewHolder> {
 
     private static final String TAG = RecipeRecyclerViewAdapter.class.getSimpleName();
 
     private final OnRecipeListInteractionListener mListener;
 
-    private Cursor mCursor;
-
-    private DataSetObserver mDataSetObserver;
-
-    private boolean mDataValid;
-
     public RecipeRecyclerViewAdapter(OnRecipeListInteractionListener listener) {
-
+        super();
         mListener = listener;
-        mDataValid = false;
-
-        mDataSetObserver = new DataSetObserver() {
-            @Override
-            public void onChanged() {
-                super.onChanged();
-                mDataValid = true;
-                notifyDataSetChanged();
-            }
-
-            @Override
-            public void onInvalidated() {
-                super.onInvalidated();
-                mDataValid = false;
-                notifyDataSetChanged();
-            }
-        };
-    }
-
-    void swapCursor(Cursor cursor) {
-        Log.d(TAG, "Swapping cursor to " + (cursor != null ? "new one" : "null"));
-        if (cursor == mCursor) {
-            Log.d(TAG, "same cursor -> nop");
-            return;
-        }
-        if (mCursor != null) {
-            Log.d(TAG, "Unregister observer from precious cursor");
-            mCursor.unregisterDataSetObserver(mDataSetObserver);
-        }
-
-        mCursor = cursor;
-        if (mCursor != null) {
-            if (mDataSetObserver != null) {
-                Log.d(TAG, "Register new data set observer");
-                cursor.registerDataSetObserver(mDataSetObserver);
-            }
-            cursor.moveToFirst();
-            mDataValid = true;
-        }
-        else {
-            Log.d(TAG, "Invalid data");
-            mDataValid = false;
-        }
-        Log.d(TAG, "notify of data set change");
-
-        notifyDataSetChanged();
-    }
-
-    void setEmptyView(final TextView emptyView, final RecyclerView recyclerView) {
-        RecyclerView.AdapterDataObserver dataObserver = new RecyclerView.AdapterDataObserver() {
-            @Override
-            public void onChanged() {
-                Log.d(TAG, "Got notified of change in data");
-                if (getItemCount() == 0) {
-                    emptyView.setVisibility(View.VISIBLE);
-                    recyclerView.setVisibility(View.GONE);
-                }
-                else {
-                    emptyView.setVisibility(View.GONE);
-                    recyclerView.setVisibility(View.VISIBLE);
-                }
-            }
-        };
-        // Init state
-        Log.d(TAG, "Set initial data state");
-        dataObserver.onChanged();
-        registerAdapterDataObserver(dataObserver);
     }
 
     @Override
@@ -127,13 +55,6 @@ public class RecipeRecyclerViewAdapter extends RecyclerView.Adapter<RecipeRecycl
                 }
             }
         });
-    }
-
-    @Override
-    public int getItemCount() {
-        Log.d(TAG, "Item count (" + (mCursor == null ? "no data cursor, " : "valid data cursor, ") +
-                (mDataValid ? "data valid" : "data not valid") + ")");
-        return (mCursor != null && mDataValid) ? mCursor.getCount() : 0;
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {

@@ -34,8 +34,20 @@ public abstract class BakingLoader implements LoaderManager.LoaderCallbacks<Curs
         return mContext;
     }
 
+    public void init(int recipeId) {
+        Bundle args = new Bundle();
+        args.putInt(KEY_RECIPE_ID, recipeId);
+        init(args);
+    }
+
     public void init(@Nullable Bundle args) {
         mManager.initLoader(getLoaderId(), args, this);
+    }
+
+    public void restart(int recipeId) {
+        Bundle args = new Bundle();
+        args.putInt(KEY_RECIPE_ID, recipeId);
+        restart(args);
     }
 
     public void restart(@Nullable Bundle args) {

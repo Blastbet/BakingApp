@@ -23,10 +23,10 @@ public class RecipeIngredientsLoader extends BakingLoader {
     };
 
     //static final int COL_ROW_ID = 0;
-    static final int COL_RECIPE_ID = 0;
-    static final int COL_INGREDIENT_NAME        = 1;
-    static final int COL_INGREDIENT_MEASURE     = 2;
-    static final int COL_INGREDIENT_QUANTITY    = 3;
+    public static final int COL_RECIPE_ID = 0;
+    public static final int COL_INGREDIENT_NAME        = 1;
+    public static final int COL_INGREDIENT_MEASURE     = 2;
+    public static final int COL_INGREDIENT_QUANTITY    = 3;
 
     private static final int RECIPE_INGREDIENT_LOADER = 2;
 

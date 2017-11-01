@@ -17,11 +17,23 @@ public class CardViewItemDecoration extends RecyclerView.ItemDecoration {
     private static final String TAG = CardViewItemDecoration.class.getSimpleName();
     private static final Rect OUTRECT = new Rect(16, 16, 16, 16);
 
+    private Rect mOutRect;
+
+    public CardViewItemDecoration() {
+        super();
+        mOutRect = OUTRECT;
+    }
+
+    public CardViewItemDecoration(final int margin) {
+        super();
+        mOutRect = new Rect(margin, margin, margin, margin);
+    }
+
     @Override
     public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
         if (view instanceof CardView) {
-            outRect.set(OUTRECT);
-            Log.d(TAG, "Setting cardview insets to " + OUTRECT.toString());
+            outRect.set(mOutRect);
+            Log.d(TAG, "Setting cardview insets to " + mOutRect.toString());
         }
         else {
             Log.d(TAG, "Cannot set insets for class " + view.getClass().getSimpleName());

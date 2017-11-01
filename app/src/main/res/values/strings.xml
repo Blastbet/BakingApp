@@ -8,6 +8,7 @@
     <string name="recipe_grid_fragment_tag">GRID_TAG</string>
     <string name="recipe_step_list_fragment_tag">STEPS_TAG</string>
     <string name="recipe_step_details_fragment_tag">DETAILS_TAG</string>
+    <string name="ingredient_fragment_tag">INGREDIENTS_TAG</string>
 
     <!-- SyncAdapter related -->
     <string name="sync_account_type">bakingapp.nanodegree.blastbet.com</string>
@@ -22,5 +23,6 @@
 
     <string name="network_connectivity_alert">No network connectivity!</string>
     <string name="step_data_unavailable_alert">No data available for step!</string>
+    <string name="ingredients">Ingredients</string>
 
 </resources>

@@ -90,6 +90,11 @@ public class RecipeStepDetailsFragment extends Fragment
         return fragment;
     }
 
+    public static RecipeStepDetailsFragment newEmptyInstance() {
+        RecipeStepDetailsFragment fragment = new RecipeStepDetailsFragment();
+        return fragment;
+    }
+
     private void swapCursor(Cursor cursor) {
         mData = cursor;
 
@@ -104,9 +109,15 @@ public class RecipeStepDetailsFragment extends Fragment
     }
 
     public void setStep(int recipeId, int recipeStep, int recipeStepCount) {
+        if (mRecipeId < 0 || mRecipeStep < 0) {
+            mLoader.init(recipeId, recipeStep);
+        }
+        else {
+            mLoader.restart(recipeId, recipeStep);
+        }
+
         mRecipeId = recipeId;
         mRecipeStepCount = recipeStepCount;
-        mLoader.restart(mRecipeId, recipeStep);
     }
 /*
 
@@ -135,7 +146,9 @@ public class RecipeStepDetailsFragment extends Fragment
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         mLoader = new RecipeStepDetailsLoader(getContext(), getLoaderManager(), this);
-        mLoader.init(mRecipeId, mRecipeStep);
+        if (mRecipeStep >= 0 && mRecipeId >= 0) {
+            mLoader.init(mRecipeId, mRecipeStep);
+        }
     }
 
     @Override

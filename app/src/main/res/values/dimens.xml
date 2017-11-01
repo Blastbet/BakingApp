@@ -3,4 +3,9 @@
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
     <dimen name="text_margin">16dp</dimen>
+    <dimen name="text_margin_small">4dp</dimen>
+    <dimen name="recipe_detail_cardview_insets">3dp</dimen>
+    <dimen name="cardview_text_margin_start">32dp</dimen>
+    <dimen name="ingredient_card_elevation">5dp</dimen>
+    <dimen name="step_card_elevation">1dp</dimen>
 </resources>
