@@ -57,10 +57,10 @@ public class RecipeStepDetailsFragment extends Fragment
 
     @BindView(R.id.recipe_step_container) LinearLayout mContainer;
     @BindView(R.id.player_recipe_step_instruction) SimpleExoPlayerView mPlayerView;
-/*    @BindView(R.id.play_button) ImageButton mButtonPlay;
-    @BindView(R.id.overlay_player_controls) LinearLayout mPlayerOverlayControls;
-    @BindView(R.id.pause_button) ImageButton mButtonPause;
-    @BindView(R.id.rewind_button) ImageButton mButtonRewind;*/
+/*    @BindView(R.mId.play_button) ImageButton mButtonPlay;
+    @BindView(R.mId.overlay_player_controls) LinearLayout mPlayerOverlayControls;
+    @BindView(R.mId.pause_button) ImageButton mButtonPause;
+    @BindView(R.mId.rewind_button) ImageButton mButtonRewind;*/
     @BindView(R.id.text_player_alert) TextView mPlayerAlertText;
     @BindView(R.id.player_loading_overlay) FrameLayout mPlayerLoadingOverlay;
     @BindView(R.id.text_recipe_step_instruction) TextView mTextView;
@@ -87,11 +87,6 @@ public class RecipeStepDetailsFragment extends Fragment
                 + ", step " + recipeStep
                 + " max step " + stepCount);
         fragment.setArguments(args);
-        return fragment;
-    }
-
-    public static RecipeStepDetailsFragment newEmptyInstance() {
-        RecipeStepDetailsFragment fragment = new RecipeStepDetailsFragment();
         return fragment;
     }
 
@@ -202,7 +197,7 @@ public class RecipeStepDetailsFragment extends Fragment
             final String url = mData.getString(RecipeStepDetailsLoader.COL_STEP_VIDEO_URL);
             if (url == null || url.isEmpty()) {
                 Log.w(TAG, "Invalid empty URL for video!");
-
+                mPlayerAlertText.setVisibility(View.GONE);
             }
             else {
                 initPlayer(url);
@@ -218,6 +213,7 @@ public class RecipeStepDetailsFragment extends Fragment
 
             Log.d(TAG, "Description: " + description);
             if (!getResources().getBoolean(R.bool.landscape_only)) {
+                Log.d(TAG, "Configure navigation buttons.");
                 setupNavigationButtons();
             }
 
@@ -291,12 +287,14 @@ public class RecipeStepDetailsFragment extends Fragment
         mPreviousButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                swapCursor(null);
                 mLoader.restart(mRecipeId, mRecipeStep - 1);
             }
         });
         mNextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                swapCursor(null);
                 mLoader.restart(mRecipeId, mRecipeStep + 1);
             }
         });
@@ -309,16 +307,19 @@ public class RecipeStepDetailsFragment extends Fragment
             return;
         }
 
-        if (mRecipeStep <= 0) {
+        if (mRecipeStep <= -1) {
             mPreviousButton.setEnabled(false);
-        }
-        else {
-            mPreviousButton.setEnabled(true);
-        }
-        if (mRecipeStep >= (mRecipeStepCount - 1)) {
             mNextButton.setEnabled(false);
         }
-        else {
+        else if (mRecipeStep == 0) {
+            mPreviousButton.setEnabled(false);
+            mNextButton.setEnabled(true);
+        }
+        else if (mRecipeStep >= (mRecipeStepCount - 1)) {
+            mPreviousButton.setEnabled(true);
+            mNextButton.setEnabled(false);
+        } else {
+            mPreviousButton.setEnabled(true);
             mNextButton.setEnabled(true);
         }
     }

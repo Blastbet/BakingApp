@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -7,48 +7,23 @@
     android:layout_marginRight="16dp"
     android:orientation="vertical">
 
-    <android.support.v7.widget.CardView
-        android:layout_alignParentTop="true"
-        android:id="@+id/ingredients_card"
-        android:layout_margin="@dimen/recipe_detail_cardview_insets"
+    <android.support.v7.widget.RecyclerView xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/list"
+        android:name="com.blastbet.nanodegree.bakingapp.RecipeDetailsFragment"
         android:layout_width="match_parent"
-        app:cardElevation="@dimen/ingredient_card_elevation"
-        android:layout_height="wrap_content">
+        android:layout_height="match_parent"
+        app:layoutManager="LinearLayoutManager"
+        tools:context="com.blastbet.nanodegree.bakingapp.RecipeDetailsFragment"
+        tools:listitem="@layout/recipe_step_list_item" />
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="@dimen/text_margin"
-            android:layout_gravity="center_vertical|start"
-            android:paddingStart="@dimen/cardview_text_margin_start"
-            android:paddingLeft="@dimen/cardview_text_margin_start"
-            android:paddingEnd="@dimen/cardview_text_margin_start"
-            android:paddingRight="@dimen/cardview_text_margin_start"
-            android:text="@string/ingredients"
-            android:textAppearance="?attr/textAppearanceListItem"/>
+    <TextView
+        android:id="@+id/empty_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:visibility="gone"
+        android:text="@string/no_data"/>
 
-    </android.support.v7.widget.CardView>
-
-        <android.support.v7.widget.RecyclerView xmlns:android="http://schemas.android.com/apk/res/android"
-            xmlns:app="http://schemas.android.com/apk/res-auto"
-            xmlns:tools="http://schemas.android.com/tools"
-            android:id="@+id/list"
-            android:name="com.blastbet.nanodegree.bakingapp.RecipeDetailsFragment"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_below="@+id/ingredients_card"
-            android:layout_alignParentBottom="true"
-            app:layoutManager="LinearLayoutManager"
-            tools:context="com.blastbet.nanodegree.bakingapp.RecipeDetailsFragment"
-            tools:listitem="@layout/recipe_step_list_item" />
-
-        <TextView
-            android:id="@+id/empty_view"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_below="@+id/ingredients_card"
-            android:layout_alignParentBottom="true"
-            android:gravity="center"
-            android:visibility="gone"
-            android:text="@string/no_data"/>
-</RelativeLayout>
+</FrameLayout>

@@ -8,7 +8,6 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.blastbet.nanodegree.bakingapp.data.RecipeIngredientsLoader;
-import com.blastbet.nanodegree.bakingapp.sync.BakingRecyclerViewAdapter;
 
 import java.util.Arrays;
 

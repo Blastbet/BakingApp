@@ -1,10 +1,7 @@
 package com.blastbet.nanodegree.bakingapp;
 
 import android.content.res.Resources;
-import android.database.Cursor;
-import android.database.DataSetObserver;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,7 +9,6 @@ import android.widget.TextView;
 
 import com.blastbet.nanodegree.bakingapp.RecipeFragment.OnRecipeListInteractionListener;
 import com.blastbet.nanodegree.bakingapp.data.RecipeLoader;
-import com.blastbet.nanodegree.bakingapp.sync.BakingRecyclerViewAdapter;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -40,9 +36,13 @@ public class RecipeRecyclerViewAdapter extends BakingRecyclerViewAdapter<RecipeR
     public void onBindViewHolder(final ViewHolder holder, int position) {
         mCursor.moveToPosition(position);
         Resources res = holder.mTextServings.getResources();
-        holder.id = mCursor.getInt(RecipeLoader.COL_RECIPE_ID);
-        holder.mTextView.setText(mCursor.getString(RecipeLoader.COL_RECIPE_NAME));
-        holder.mTextServings.setText(res.getString(R.string.formatted_servings, mCursor.getInt(RecipeLoader.COL_RECIPE_SERVINGS)));
+        holder.mId = mCursor.getInt(RecipeLoader.COL_RECIPE_ID);
+        holder.mName = mCursor.getString(RecipeLoader.COL_RECIPE_NAME);
+        holder.mTextView.setText(holder.mName);
+        holder.mTextServings.setText(res.getString(
+                R.string.formatted_servings,
+                mCursor.getInt(RecipeLoader.COL_RECIPE_SERVINGS)
+        ));
 
         // TODO: fetch background image
         holder.mView.setOnClickListener(new View.OnClickListener() {
@@ -51,7 +51,7 @@ public class RecipeRecyclerViewAdapter extends BakingRecyclerViewAdapter<RecipeR
                 if (null != mListener) {
                     // Notify the active callbacks interface (the activity, if the
                     // fragment is attached to one) that an item has been selected.
-                    mListener.onRecipeClicked(holder.id);
+                    mListener.onRecipeClicked(holder.mId, holder.mName);
                 }
             }
         });
@@ -62,7 +62,9 @@ public class RecipeRecyclerViewAdapter extends BakingRecyclerViewAdapter<RecipeR
         @BindView(R.id.text_recipe_servings) TextView mTextServings;
 
         public final View mView;
-        public int id;
+
+        public String mName;
+        public int mId;
 
 
         public ViewHolder(View view) {

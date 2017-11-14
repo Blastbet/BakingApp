@@ -2,9 +2,9 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="@dimen/text_margin"
-    android:orientation="horizontal">
-
+    android:orientation="horizontal"
+    android:background="@drawable/bottom_border"
+    >
     <TextView
         android:id="@+id/text_quantity"
         android:layout_width="0dp"
@@ -35,4 +35,5 @@
         android:gravity="start"
         android:layout_margin="@dimen/text_margin_small"
         android:textAppearance="?attr/textAppearanceListItem" />
+
 </LinearLayout>

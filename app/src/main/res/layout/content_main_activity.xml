@@ -1,20 +1,10 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/container_fragment">
+    android:orientation="vertical"
+    android:id="@+id/fragment_container">
 
-    <!--
-    <fragment xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools"
-        android:id="@+id/fragment_recipe_list"
-        android:name="com.blastbet.nanodegree.bakingapp.RecipeFragment"
-        android:tag="@string/recipe_list_fragment_tag"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        tools:layout="@layout/fragment_recipe_list"/>
-        -->
-</FrameLayout>
+</LinearLayout>

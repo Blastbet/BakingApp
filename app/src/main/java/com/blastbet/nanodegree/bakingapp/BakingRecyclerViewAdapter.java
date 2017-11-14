@@ -1,4 +1,4 @@
-package com.blastbet.nanodegree.bakingapp.sync;
+package com.blastbet.nanodegree.bakingapp;
 
 import android.database.Cursor;
 import android.database.DataSetObserver;

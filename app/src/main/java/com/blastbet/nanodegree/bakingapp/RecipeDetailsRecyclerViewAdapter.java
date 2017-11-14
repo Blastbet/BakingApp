@@ -9,7 +9,6 @@ import android.widget.TextView;
 
 import com.blastbet.nanodegree.bakingapp.RecipeDetailsFragment.OnRecipeStepFragmentInteractionListener;
 import com.blastbet.nanodegree.bakingapp.data.RecipeStepLoader;
-import com.blastbet.nanodegree.bakingapp.sync.BakingRecyclerViewAdapter;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -42,10 +41,13 @@ public class RecipeDetailsRecyclerViewAdapter extends BakingRecyclerViewAdapter<
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         mCursor.moveToPosition(position);
-        holder.mStepNumber = position;
         holder.mTextStepDescription.setText(
                 mCursor.getString(RecipeStepLoader.COL_STEP_SHORT_DESCRIPTION)
         );
+        int recipeId = mCursor.getInt(RecipeStepLoader.COL_RECIPE_ID);
+        int stepNumber = mCursor.getInt(RecipeStepLoader.COL_STEP_INDEX);
+        holder.setStepDetails(stepNumber, mCursor.getCount(), recipeId);
+
         holder.mView.setSelected(mSelectedItems.get(position, false));
 
         holder.mView.setOnClickListener(new View.OnClickListener() {
@@ -64,14 +66,25 @@ public class RecipeDetailsRecyclerViewAdapter extends BakingRecyclerViewAdapter<
 
     public class ViewHolder extends RecyclerView.ViewHolder {
         final View mView;
-        //@BindView(R.id.text_step_number) TextView mTextStepNum;
+        //@BindView(R.mId.text_step_number) TextView mTextStepNum;
         @BindView(R.id.text_recipe_step_list_item) TextView mTextStepDescription;
-        int mStepNumber;
+        private int mStepNumber;
+        private int mRecipeId;
+        private int mStepCount;
 
         ViewHolder(View view) {
             super(view);
             mView = view;
+            mStepNumber = -1;
+            mRecipeId = -1;
+            mStepCount = -1;
             ButterKnife.bind(this, mView);
+        }
+
+        void setStepDetails(int stepNumber, int stepCount, int recipeId) {
+            mStepNumber = stepNumber;
+            mStepCount = stepCount;
+            mRecipeId = recipeId;
         }
 
         void selectItem() {
@@ -84,7 +97,7 @@ public class RecipeDetailsRecyclerViewAdapter extends BakingRecyclerViewAdapter<
                 mView.setSelected(true);
             }
             if (null != mListener) {
-                mListener.onRecipeStepClicked(mRecipeId, mStepNumber, mCursor.getCount());
+                mListener.onRecipeStepClicked(this.mRecipeId, this.mStepNumber, this.mStepCount);
             }
         }
 

@@ -5,9 +5,12 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -55,6 +58,13 @@ public class RecipeFragment extends Fragment implements RecipeLoader.Callbacks {
         super.onActivityCreated(savedInstanceState);
         mRecipeLoader = new RecipeLoader(getContext(), getLoaderManager(), this);
         mRecipeLoader.init(null);
+        if (!getResources().getBoolean(R.bool.landscape_only)) {
+            AppCompatActivity activity = (AppCompatActivity) getActivity();
+            ActionBar actionbar = activity.getSupportActionBar();
+            if (actionbar != null) {
+                actionbar.setTitle(R.string.app_name);
+            }
+        }
     }
 
     // TODO: Customize parameter initialization
@@ -155,6 +165,6 @@ public class RecipeFragment extends Fragment implements RecipeLoader.Callbacks {
     }
 
     public interface OnRecipeListInteractionListener {
-        void onRecipeClicked(int recipeId);
+        void onRecipeClicked(int recipeId, String recipeName);
     }
 }

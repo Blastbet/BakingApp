@@ -5,12 +5,16 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.CardView;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AnimationUtils;
+import android.view.animation.LayoutAnimationController;
 import android.widget.TextView;
 
 import com.blastbet.nanodegree.bakingapp.data.BakingLoader;
@@ -20,29 +24,28 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
 
-/**
- * A fragment representing a list of Items.
- * <p/>
- * Activities containing this fragment MUST implement the {@link OnIngredientFragmentInteractionListener}
- * interface.
- */
 public class IngredientFragment extends Fragment implements BakingLoader.Callbacks {
 
     private static final String TAG = IngredientFragment.class.getSimpleName();
 
     private static final String KEY_RECIPE_ID = "recipe_id";
 
-    private OnIngredientFragmentInteractionListener mListener;
+//    private OnIngredientFragmentInteractionListener mListener;
     private int mRecipeId;
 
     private RecipeIngredientsLoader mLoader;
 
     @BindView(R.id.list) RecyclerView mIngredientListView;
     @BindView(R.id.empty_view) TextView mEmptyView;
+    @BindView(R.id.ingredients_card) CardView mIngredientsCard;
+
+    private boolean mExpanded;
+    private Cursor mIngredientsData;
 
     Unbinder mUnbinder;
 
     IngredientRecyclerViewAdapter mAdapter;
+    LinearLayoutManager mLayoutManager;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -50,6 +53,7 @@ public class IngredientFragment extends Fragment implements BakingLoader.Callbac
      */
     public IngredientFragment() {
         mRecipeId = -1;
+        mExpanded = false;
     }
 
     public static IngredientFragment newInstance(int recipeId) {
@@ -69,7 +73,6 @@ public class IngredientFragment extends Fragment implements BakingLoader.Callbac
         }
     }
 
-
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -81,8 +84,6 @@ public class IngredientFragment extends Fragment implements BakingLoader.Callbac
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        mLoader = new RecipeIngredientsLoader(getContext(), getLoaderManager(), this);
-        mLoader.init(mRecipeId);
     }
 
     @Override
@@ -94,20 +95,27 @@ public class IngredientFragment extends Fragment implements BakingLoader.Callbac
 
         mAdapter = new IngredientRecyclerViewAdapter();
 
-        mIngredientListView.setLayoutManager(new LinearLayoutManager(view.getContext()));
+        mLayoutManager = new LinearLayoutManager(view.getContext());
+        mIngredientListView.setLayoutManager(mLayoutManager);
         mIngredientListView.setAdapter(mAdapter);
+        LayoutAnimationController animation = AnimationUtils
+                .loadLayoutAnimation(getContext(), R.anim.layout_animation_slide_down);
+        mIngredientListView.setLayoutAnimation(animation);
 
+//        mItemDecoration = new DividerItemDecoration(getContext(), mLayoutManager.getOrientation());
+//        mIngredientListView.addItemDecoration(mItemDecoration);
         if (savedInstanceState != null) {
             mRecipeId = savedInstanceState.getInt(KEY_RECIPE_ID);
         }
 
-        mIngredientListView.setOnClickListener(new View.OnClickListener() {
+        mIngredientsCard.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Log.d(TAG, "Ingredient list view clicked.");
-                mListener.onListFragmentClicked();
+                toggleIngredients();
             }
         });
+
         return view;
     }
 
@@ -122,46 +130,71 @@ public class IngredientFragment extends Fragment implements BakingLoader.Callbac
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof OnIngredientFragmentInteractionListener) {
+        /*if (context instanceof OnIngredientFragmentInteractionListener) {
             mListener = (OnIngredientFragmentInteractionListener) context;
         } else {
             throw new RuntimeException(context.toString()
                     + " must implement OnIngredientFragmentInteractionListener");
-        }
+        }*/
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
-        mListener = null;
+//        mListener = null;
     }
 
     @Override
     public void onLoadFinished(int id, Cursor cursor) {
         if (id == mLoader.getLoaderId()) {
-            mAdapter.swapCursor(cursor);
+//            Log.d(TAG, "Load Finished");
+            mIngredientsData = cursor;
+            expandIngredients();
         }
     }
 
     @Override
     public void onLoaderReset(int id) {
         if (id == mLoader.getLoaderId()) {
+            mIngredientsData = null;
             mAdapter.swapCursor(null);
+            //mIngredientListView.scheduleLayoutAnimation();
         }
     }
 
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p/>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
-    public interface OnIngredientFragmentInteractionListener {
-        // TODO: Update argument type and name
-        void onListFragmentClicked();
+
+    private void expandIngredients() {
+//        Log.d(TAG, "EXPANDED INGREDIENTS");
+        mAdapter.swapCursor(mIngredientsData);
+        mIngredientListView.scheduleLayoutAnimation();
+        mExpanded = true;
+    }
+
+    private void collapseIngredients() {
+//        Log.d(TAG, "COLLAPSE INGREDIENTS");
+        mIngredientsData = null;
+        mAdapter.swapCursor(null);
+        mIngredientListView.scheduleLayoutAnimation();
+        mExpanded = false;
+    }
+
+    private void toggleIngredients() {
+        if (mExpanded) {
+            collapseIngredients();
+            mIngredientsCard.setCardBackgroundColor(getResources().getColor(R.color.colorPrimaryLight));
+            mIngredientsCard.setCardElevation(getResources().getDimension(R.dimen.ingredient_card_elevation));
+        }
+        else {
+            mIngredientsCard.setCardBackgroundColor(getResources().getColor(R.color.colorPrimary));
+            //expandIngredients();
+            if (mLoader == null) {
+                mLoader = new RecipeIngredientsLoader(getContext(), getLoaderManager(), this);
+                mLoader.init(mRecipeId);
+            }
+            else {
+                mLoader.restart(mRecipeId);
+            }
+            mIngredientsCard.setCardElevation(0);
+        }
     }
 }

@@ -24,5 +24,6 @@
     <string name="network_connectivity_alert">No network connectivity!</string>
     <string name="step_data_unavailable_alert">No data available for step!</string>
     <string name="ingredients">Ingredients</string>
+    <string name="ingredients_button_transition">ingredientsButtonTransition</string>
 
 </resources>

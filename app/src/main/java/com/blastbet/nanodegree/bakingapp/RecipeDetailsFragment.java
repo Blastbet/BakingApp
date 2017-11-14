@@ -5,6 +5,8 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -33,15 +35,16 @@ public class RecipeDetailsFragment extends Fragment implements BakingLoader.Call
     private static final String TAG = RecipeDetailsFragment.class.getSimpleName();
 
     public static final String KEY_RECIPE_ID = "recipe_id";
+    public static final String KEY_RECIPE_NAME = "recipe_name";
     private OnRecipeStepFragmentInteractionListener mListener;
 
     private int mRecipeId;
+    private String mName;
 
     private RecipeStepLoader mStepLoader;
 
     private RecipeDetailsRecyclerViewAdapter mRecipeAdapter;
 
-    @BindView(R.id.ingredients_card) CardView mIngredientsCard;
     @BindView(R.id.list) RecyclerView mRecyclerView;
     @BindView(R.id.empty_view) TextView mEmptyView;
 
@@ -55,10 +58,11 @@ public class RecipeDetailsFragment extends Fragment implements BakingLoader.Call
         mRecipeId = -1;
     }
 
-    static RecipeDetailsFragment newInstance(int recipeId) {
+    static RecipeDetailsFragment newInstance(int recipeId, String name) {
         RecipeDetailsFragment fragment = new RecipeDetailsFragment();
         Bundle args = new Bundle();
         args.putInt(KEY_RECIPE_ID, recipeId);
+        args.putString(KEY_RECIPE_NAME, name);
         fragment.setArguments(args);
         return fragment;
     }
@@ -69,6 +73,7 @@ public class RecipeDetailsFragment extends Fragment implements BakingLoader.Call
         Bundle arguments = getArguments();
         if (getArguments() != null) {
             mRecipeId = arguments.getInt(KEY_RECIPE_ID);
+            mName = arguments.getString(KEY_RECIPE_NAME);
         }
     }
 
@@ -76,6 +81,7 @@ public class RecipeDetailsFragment extends Fragment implements BakingLoader.Call
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putInt(KEY_RECIPE_ID, mRecipeId);
+        outState.putString(KEY_RECIPE_NAME, mName);
     }
 
     @Override
@@ -83,6 +89,13 @@ public class RecipeDetailsFragment extends Fragment implements BakingLoader.Call
         super.onActivityCreated(savedInstanceState);
         mStepLoader = new RecipeStepLoader(getContext(), getLoaderManager(), this);
         mStepLoader.init(mRecipeId);
+        if (!getResources().getBoolean(R.bool.landscape_only)) {
+            AppCompatActivity activity = (AppCompatActivity) getActivity();
+            ActionBar actionbar = activity.getSupportActionBar();
+            if (actionbar != null) {
+                actionbar.setTitle(mName);
+            }
+        }
     }
 
     @Override
@@ -95,10 +108,11 @@ public class RecipeDetailsFragment extends Fragment implements BakingLoader.Call
         mRecyclerView.addItemDecoration(new CardViewItemDecoration(cardviewInsets));
         if (savedInstanceState != null) {
             mRecipeId = savedInstanceState.getInt(KEY_RECIPE_ID);
+            mName = savedInstanceState.getString(KEY_RECIPE_NAME);
         }
 
         if (mRecipeId < 0) {
-            throw new RuntimeException("Invalid recipe id when initializing recipe step list");
+            throw new RuntimeException("Invalid recipe mId when initializing recipe step list");
         }
 
         Context context = view.getContext();
@@ -113,12 +127,6 @@ public class RecipeDetailsFragment extends Fragment implements BakingLoader.Call
         mRecipeAdapter.setEmptyView(mEmptyView, mRecyclerView);
         mRecyclerView.setAdapter(mRecipeAdapter);
 
-        mIngredientsCard.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mListener.onIngredientsClicked(mRecipeId);
-            }
-        });
         return view;
     }
 
@@ -194,6 +202,5 @@ public class RecipeDetailsFragment extends Fragment implements BakingLoader.Call
 
     public interface OnRecipeStepFragmentInteractionListener {
         void onRecipeStepClicked(int recipeId, int stepNumber, int stepCount);
-        void onIngredientsClicked(int recipeId);
     }
 }

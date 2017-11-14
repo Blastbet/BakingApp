@@ -16,6 +16,7 @@
         android:layout_gravity="start|center_vertical"
         android:drawableLeft="@drawable/ic_arrow_up"
         android:drawableStart="@drawable/ic_arrow_up"
+        android:enabled="false"
         android:drawablePadding="10dp"/>
 
     <Button
@@ -29,6 +30,7 @@
         android:layout_gravity="end|center_vertical"
         android:drawableRight="@drawable/ic_arrow_down"
         android:drawableEnd="@drawable/ic_arrow_down"
+        android:enabled="false"
         android:drawablePadding="10dp"/>
 
 </LinearLayout>
