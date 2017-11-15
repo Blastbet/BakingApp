@@ -1,5 +1,6 @@
 package com.blastbet.nanodegree.bakingapp;
 
+import android.content.pm.ActivityInfo;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -44,6 +45,7 @@ public class MainActivity extends AppCompatActivity
             int containerId = R.id.fragment_container;
             if (getResources().getBoolean(R.bool.landscape_only)) {
                 containerId = R.id.container_navigation;
+                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
             }
             getSupportFragmentManager().beginTransaction()
                     .add(containerId, rf, getString(R.string.recipe_list_fragment_tag))
