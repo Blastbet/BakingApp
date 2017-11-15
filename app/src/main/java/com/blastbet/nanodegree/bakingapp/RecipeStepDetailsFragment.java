@@ -57,10 +57,6 @@ public class RecipeStepDetailsFragment extends Fragment
 
     @BindView(R.id.recipe_step_container) LinearLayout mContainer;
     @BindView(R.id.player_recipe_step_instruction) SimpleExoPlayerView mPlayerView;
-/*    @BindView(R.mId.play_button) ImageButton mButtonPlay;
-    @BindView(R.mId.overlay_player_controls) LinearLayout mPlayerOverlayControls;
-    @BindView(R.mId.pause_button) ImageButton mButtonPause;
-    @BindView(R.mId.rewind_button) ImageButton mButtonRewind;*/
     @BindView(R.id.text_player_alert) TextView mPlayerAlertText;
     @BindView(R.id.player_loading_overlay) FrameLayout mPlayerLoadingOverlay;
     @BindView(R.id.text_recipe_step_instruction) TextView mTextView;
