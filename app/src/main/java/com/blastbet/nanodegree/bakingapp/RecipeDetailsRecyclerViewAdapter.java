@@ -1,6 +1,7 @@
 package com.blastbet.nanodegree.bakingapp;
 
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,6 +22,8 @@ public class RecipeDetailsRecyclerViewAdapter extends BakingRecyclerViewAdapter<
 
     private int mRecipeId;
 
+    private int mSelectedPos;
+
     private SparseBooleanArray mSelectedItems;
 
     public RecipeDetailsRecyclerViewAdapter(OnRecipeStepFragmentInteractionListener listener) {
@@ -28,6 +31,7 @@ public class RecipeDetailsRecyclerViewAdapter extends BakingRecyclerViewAdapter<
         mSelectedItems = new SparseBooleanArray();
         mListener = listener;
         mRecipeId = -1;
+        mSelectedPos = -1;
     }
 
     @Override
@@ -44,11 +48,12 @@ public class RecipeDetailsRecyclerViewAdapter extends BakingRecyclerViewAdapter<
         holder.mTextStepDescription.setText(
                 mCursor.getString(RecipeStepLoader.COL_STEP_SHORT_DESCRIPTION)
         );
+        Log.d(TAG, "Selected is " + mSelectedPos + ", this is " + position);
+        holder.mView.setSelected(mSelectedPos == position);
+
         int recipeId = mCursor.getInt(RecipeStepLoader.COL_RECIPE_ID);
         int stepNumber = mCursor.getInt(RecipeStepLoader.COL_STEP_INDEX);
         holder.setStepDetails(stepNumber, mCursor.getCount(), recipeId);
-
-        holder.mView.setSelected(mSelectedItems.get(position, false));
 
         holder.mView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -87,17 +92,29 @@ public class RecipeDetailsRecyclerViewAdapter extends BakingRecyclerViewAdapter<
             mRecipeId = recipeId;
         }
 
+        /*
+                void selectItem() {
+                    if (mSelectedItems.get(getAdapterPosition(), false)) {
+                        mSelectedItems.delete(getAdapterPosition());
+                        mView.setSelected(false);
+                    }
+                    else {
+                        mSelectedItems.put(getAdapterPosition(), true);
+                        mView.setSelected(true);
+                    }
+                    if (null != mListener) {
+                        mListener.onRecipeStepClicked(this.mRecipeId, this.mStepNumber, this.mStepCount);
+                    }
+        */
         void selectItem() {
-            if (mSelectedItems.get(getAdapterPosition(), false)) {
-                mSelectedItems.delete(getAdapterPosition());
-                mView.setSelected(false);
-            }
-            else {
-                mSelectedItems.put(getAdapterPosition(), true);
-                mView.setSelected(true);
-            }
-            if (null != mListener) {
-                mListener.onRecipeStepClicked(this.mRecipeId, this.mStepNumber, this.mStepCount);
+            if (mSelectedPos != getAdapterPosition()) {
+                Log.d(TAG, "Selection changed!");
+                mSelectedPos = getAdapterPosition();
+                notifyDataSetChanged();
+
+                if (null != mListener) {
+                    mListener.onRecipeStepClicked(this.mRecipeId, this.mStepNumber, this.mStepCount);
+                }
             }
         }
 

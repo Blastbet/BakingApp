@@ -73,7 +73,7 @@ public abstract class BakingRecyclerViewAdapter<VH extends RecyclerView.ViewHold
             @Override
             public void onChanged() {
                 Log.d(TAG, "Got notified of change in data");
-                if (getItemCount() == 0) {
+                if (getItemCount() <= 0) {
                     emptyView.setVisibility(View.VISIBLE);
                     recyclerView.setVisibility(View.GONE);
                 }
