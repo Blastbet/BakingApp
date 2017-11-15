@@ -2,11 +2,9 @@ package com.blastbet.nanodegree.bakingapp;
 
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.CardView;
 import android.support.v7.widget.Toolbar;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.view.ViewGroup;
 
 import com.blastbet.nanodegree.bakingapp.connection.ConnectivityMonitor;
@@ -17,17 +15,13 @@ import butterknife.ButterKnife;
 public class MainActivity extends AppCompatActivity
         implements RecipeFragment.OnRecipeListInteractionListener,
         RecipeDetailsFragment.OnRecipeStepFragmentInteractionListener {
-//        IngredientFragment.OnIngredientFragmentInteractionListener {
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
     private ConnectivityMonitor mConnectivityMonitor;
 
-    private int mIngredientId = -1;
-
     @BindView(R.id.toolbar) Toolbar mToolbar;
     @BindView(R.id.fragment_container) ViewGroup mFragmentContainer;
-//    @BindView(R.mId.ingredients_button) CardView mIngredientsButton;
 
 
     private int mRecipeId = -1;
@@ -64,13 +58,6 @@ public class MainActivity extends AppCompatActivity
                 Log.d(TAG, "Recipe ID: " + savedInstanceState.getParcelable(RecipeStepDetailsFragment.KEY_RECIPE_STEP));
             }
         }
-
-//        mIngredientsButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                onIngredientsClicked(mRecipeId);
-//            }
-//        });
 
         mConnectivityMonitor = new ConnectivityMonitor(this);
     }
@@ -112,8 +99,6 @@ public class MainActivity extends AppCompatActivity
                 .add(containerId, ingredientFragment, getString(R.string.ingredient_fragment_tag))
                 .add(containerId, rdf, getString(R.string.recipe_step_list_fragment_tag));
 
-//        mIngredientsButton.setVisibility(View.VISIBLE);
-
         if (getResources().getBoolean(R.bool.landscape_only)) {
             RecipeStepDetailsFragment rsdf = new RecipeStepDetailsFragment();
             transaction = transaction.add(R.id.fragment_container, rsdf, getString(R.string.recipe_step_details_fragment_tag));
@@ -153,63 +138,4 @@ public class MainActivity extends AppCompatActivity
                 .addToBackStack(null)
                 .commit();
     }
-
-//    @Override
-//    public void onIngredientsClicked(int recipeId) {
-//        /*int containerId = R.mId.container_fragment;
-//        if (getResources().getBoolean(R.bool.landscape_only)) {
-//            containerId = R.mId.container_navigation;
-//        }*/
-//
-//        //FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-//        IngredientFragment ingredientFragment = (IngredientFragment) getSupportFragmentManager()
-//                .findFragmentByTag(getString(R.string.ingredient_fragment_tag));
-//
-//
-//        if (mIngredientId != -1) {
-//            getSupportFragmentManager().popBackStackImmediate();
-//
-//            /*
-//            transaction
-//                    .setCustomAnimations(android.R.anim.accelerate_decelerate_interpolator, R.anim.slide_in_top)
-//                    .remove(ingredientFragment);
-//*/
-//            mIngredientId = -1;
-//        }
-//        else {
-//            ViewGroup ingredientLayout = (ViewGroup) findViewById(R.mId.ingredients_container);
-//            if (ingredientLayout != null) {
-//                ingredientLayout.bringToFront();
-//            }
-//            ingredientFragment = IngredientFragment.newInstance(recipeId);
-//            //mIngredientId = getSupportFragmentManager().beginTransaction().addToBackStack("ingredient_list").commit();
-//
-//            mIngredientId = getSupportFragmentManager().beginTransaction()
-//                .addToBackStack(null)
-//                .setCustomAnimations(R.anim.slide_out_top, R.anim.slide_in_top,
-//                    R.anim.slide_out_top, R.anim.slide_in_top)
-//                .add(containerId,
-//                        ingredientFragment,
-//                        getString(R.string.ingredient_fragment_tag)).commit();
-//
-//        }
-//        //transaction.commit();
-//    }
-
-  /*  @Override
-    public void onListFragmentClicked() {
-        IngredientFragment ingredientFragment = (IngredientFragment) getSupportFragmentManager()
-                .findFragmentByTag(getString(R.string.ingredient_fragment_tag));
-
-        Log.d(TAG, "ListFragmentClicked");
-        getSupportFragmentManager().beginTransaction()
-                .remove(ingredientFragment)
-                .commit();
-    }
-    */
-
-//    @Override
-//    public void onEntry() {
-//        mIngredientsButton.setVisibility(View.GONE);
-//    }
 }
