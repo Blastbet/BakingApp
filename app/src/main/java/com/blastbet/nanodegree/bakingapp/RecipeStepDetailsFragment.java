@@ -177,7 +177,12 @@ public class RecipeStepDetailsFragment extends Fragment
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
         if (preferences.getBoolean(ConnectivityMonitor.NETWORK_CONNECTIVITY_STATE_KEY, false)) {
             mIsConnected = true;
-            setupViews();
+            if (savedInstanceState == null) {
+                setupViews();
+            }
+            else if (mPlayerView.getVisibility() != View.GONE) {
+                mPlayerView.showController();
+            }
         }
         else {
             mIsConnected = false;
