@@ -116,12 +116,6 @@ public class RecipeDetailsFragment extends Fragment implements BakingLoader.Call
 
         Context context = view.getContext();
         mRecyclerView.setLayoutManager(new LinearLayoutManager(context));
-        if (context.getResources().getBoolean(R.bool.landscape_only)) {
-            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                    0, ViewGroup.LayoutParams.MATCH_PARENT,
-                    context.getResources().getInteger(R.integer.weight_recipe_step_fragment));
-            view.setLayoutParams(params);
-        }
         mRecipeAdapter = new RecipeDetailsRecyclerViewAdapter(mListener);
         mRecipeAdapter.setEmptyView(mEmptyView, mRecyclerView);
         mRecyclerView.setAdapter(mRecipeAdapter);
