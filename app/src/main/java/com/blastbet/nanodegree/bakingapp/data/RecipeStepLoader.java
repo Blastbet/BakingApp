@@ -17,7 +17,7 @@ import com.blastbet.nanodegree.bakingapp.data.RecipeContract.StepEntry;
 
 public class RecipeStepLoader extends BakingLoader {
 
-    private static final String[] RECIPE_STEP_COLUMNS = {
+    public static final String[] RECIPE_STEP_COLUMNS = {
             StepEntry.TABLE_NAME + "." + StepEntry.COLUMN_RECIPE_ID,
             StepEntry.TABLE_NAME + "." + StepEntry.COLUMN_INDEX,
             StepEntry.TABLE_NAME + "." + StepEntry.COLUMN_SHORT_DESCRIPTION,
@@ -28,7 +28,7 @@ public class RecipeStepLoader extends BakingLoader {
     public static final int COL_STEP_INDEX             = 1;
     public static final int COL_STEP_SHORT_DESCRIPTION = 2;
 
-    private static final int RECIPE_STEP_LOADER = 1;
+    public static final int RECIPE_STEP_LOADER = 1;
 
     public RecipeStepLoader(Context context, LoaderManager manager, Callbacks callbacks) {
         super(context, manager, callbacks);

@@ -15,7 +15,7 @@ import android.os.Bundle;
 
 public class RecipeLoader extends BakingLoader {
 
-    private static final String[] RECIPE_COLUMNS = {
+    public static final String[] RECIPE_COLUMNS = {
             RecipeEntry.TABLE_NAME + "." + RecipeEntry.COLUMN_ID,
             RecipeEntry.TABLE_NAME + "." + RecipeEntry.COLUMN_NAME,
             RecipeEntry.TABLE_NAME + "." + RecipeEntry.COLUMN_IMAGE,
@@ -28,7 +28,7 @@ public class RecipeLoader extends BakingLoader {
     public static final int COL_RECIPE_IMAGE = 2;
     public static final int COL_RECIPE_SERVINGS = 3;
 
-    private static final int RECIPE_LOADER = 0;
+    public static final int RECIPE_LOADER = 0;
 
     public RecipeLoader(Context context, LoaderManager manager, Callbacks callbacks) {
         super(context, manager, callbacks);

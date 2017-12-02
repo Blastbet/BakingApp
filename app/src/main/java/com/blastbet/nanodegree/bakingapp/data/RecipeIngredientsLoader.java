@@ -15,7 +15,7 @@ import com.blastbet.nanodegree.bakingapp.data.RecipeContract.IngredientEntry;
 
 public class RecipeIngredientsLoader extends BakingLoader {
 
-    private static final String[] RECIPE_INGREDIENT_COLUMNS = {
+    public static final String[] RECIPE_INGREDIENT_COLUMNS = {
             IngredientEntry.TABLE_NAME + "." + IngredientEntry.COLUMN_RECIPE_ID,
             IngredientEntry.TABLE_NAME + "." + IngredientEntry.COLUMN_NAME,
             IngredientEntry.TABLE_NAME + "." + IngredientEntry.COLUMN_MEASURE,

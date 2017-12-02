@@ -11,6 +11,7 @@ import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
+import java.text.DecimalFormat;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
@@ -57,7 +58,8 @@ public class TestUtilities {
             testRecipeIngredient.put(IngredientEntry.COLUMN_RECIPE_ID, recipeId);
             testRecipeIngredient.put(IngredientEntry.COLUMN_NAME, UUID.randomUUID().toString());
             testRecipeIngredient.put(IngredientEntry.COLUMN_MEASURE, UUID.randomUUID().toString());
-            testRecipeIngredient.put(IngredientEntry.COLUMN_QUANTITY, new Random().nextInt(100) / 100.0);
+            testRecipeIngredient.put(IngredientEntry.COLUMN_QUANTITY, (double) i + (0.1d * new Random().nextInt(10)));
+            Log.d(LOG_TAG, "index " + i + " QUANTITY: " + testRecipeIngredient.getAsDouble(IngredientEntry.COLUMN_QUANTITY));
             valuesArray.add(testRecipeIngredient);
         }
         return valuesArray;
@@ -132,9 +134,16 @@ public class TestUtilities {
         Set<Map.Entry<String, Object>> expectedValues = expected.valueSet();
         for (Map.Entry<String, Object> entry : expectedValues) {
             String column = entry.getKey();
+            String expectedValue;
+            if (entry.getValue() instanceof Double) {
+                DecimalFormat format = new DecimalFormat("0.#");
+                expectedValue = format.format(entry.getValue());
+            }
+            else {
+                expectedValue = entry.getValue().toString();
+            }
             int columnIndex = cursor.getColumnIndex(column);
             assertFalse("Error: Column \"" + column + "\" was not found!", columnIndex == -1);
-            String expectedValue = entry.getValue().toString();
             String value = cursor.getString(columnIndex);
             assertEquals("Error: Column \"" + column + "\" was \"" + value + "\", \"" +
                             expectedValue + "\" was expected!",

@@ -44,7 +44,7 @@ public class RecipeStepDetailsFragment extends Fragment
 
     private static final String TAG = RecipeStepDetailsFragment.class.getSimpleName();
 
-    private RecipeStepDetailsLoader mLoader;
+    protected RecipeStepDetailsLoader mLoader;
     private Cursor mData;
 
     private int mRecipeId;
@@ -110,17 +110,6 @@ public class RecipeStepDetailsFragment extends Fragment
         mRecipeId = recipeId;
         mRecipeStepCount = recipeStepCount;
     }
-/*
-
-    public void setStepData(RecipeStep step) {
-        mRecipeStep = step;
-        Log.d(TAG, "Set data:" + mRecipeStep.toString());
-        if (!getResources().getBoolean(R.bool.landscape_only)) {
-            setupNavigationButtons();
-        }
-        initPlayer();
-    }
-*/
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -136,7 +125,9 @@ public class RecipeStepDetailsFragment extends Fragment
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        mLoader = new RecipeStepDetailsLoader(getContext(), getLoaderManager(), this);
+        if (mLoader == null) {
+            mLoader = new RecipeStepDetailsLoader(getContext(), getLoaderManager(), this);
+        }
         if (mRecipeStep >= 0 && mRecipeId >= 0) {
             mLoader.init(mRecipeId, mRecipeStep);
         }
@@ -299,7 +290,6 @@ public class RecipeStepDetailsFragment extends Fragment
                 mLoader.restart(mRecipeId, mRecipeStep + 1);
             }
         });
-//        mContainer.addView(view, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
     }
 
     private void setupNavigationButtons() {
@@ -358,12 +348,10 @@ public class RecipeStepDetailsFragment extends Fragment
             else {
                 mPlayerView.showController();
             }
-            //mPlayerView.setControllerAutoShow(true);
         }
         else {
             mPlayerLoadingOverlay.setVisibility(View.GONE);
             mPlayerView.showController();
-            //mPlayerView.setControllerAutoShow(true);
         }
     }
 

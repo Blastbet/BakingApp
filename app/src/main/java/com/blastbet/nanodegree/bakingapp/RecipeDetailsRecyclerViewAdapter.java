@@ -71,7 +71,6 @@ public class RecipeDetailsRecyclerViewAdapter extends BakingRecyclerViewAdapter<
 
     public class ViewHolder extends RecyclerView.ViewHolder {
         final View mView;
-        //@BindView(R.mId.text_step_number) TextView mTextStepNum;
         @BindView(R.id.text_recipe_step_list_item) TextView mTextStepDescription;
         private int mStepNumber;
         private int mRecipeId;
@@ -92,20 +91,6 @@ public class RecipeDetailsRecyclerViewAdapter extends BakingRecyclerViewAdapter<
             mRecipeId = recipeId;
         }
 
-        /*
-                void selectItem() {
-                    if (mSelectedItems.get(getAdapterPosition(), false)) {
-                        mSelectedItems.delete(getAdapterPosition());
-                        mView.setSelected(false);
-                    }
-                    else {
-                        mSelectedItems.put(getAdapterPosition(), true);
-                        mView.setSelected(true);
-                    }
-                    if (null != mListener) {
-                        mListener.onRecipeStepClicked(this.mRecipeId, this.mStepNumber, this.mStepCount);
-                    }
-        */
         void selectItem() {
             if (mSelectedPos != getAdapterPosition()) {
                 Log.d(TAG, "Selection changed!");

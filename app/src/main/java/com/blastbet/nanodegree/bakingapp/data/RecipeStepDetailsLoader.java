@@ -21,7 +21,7 @@ public class RecipeStepDetailsLoader extends BakingLoader {
     private static final String KEY_RECIPE_ID = "recipe_id";
     private static final String KEY_RECIPE_STEP = "recipe_step";
 
-    private static final String[] RECIPE_STEP_COLUMNS = {
+    public static final String[] RECIPE_STEP_COLUMNS = {
             StepEntry.TABLE_NAME + "." + StepEntry.COLUMN_RECIPE_ID,
             StepEntry.TABLE_NAME + "." + StepEntry.COLUMN_INDEX,
             StepEntry.TABLE_NAME + "." + StepEntry.COLUMN_DESCRIPTION,

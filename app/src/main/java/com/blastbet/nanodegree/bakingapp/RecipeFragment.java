@@ -40,7 +40,7 @@ public class RecipeFragment extends Fragment implements RecipeLoader.Callbacks {
     private int mColumnCount = 1;
 
     private OnRecipeListInteractionListener mListener;
-    private RecipeLoader mRecipeLoader;
+    RecipeLoader mRecipeLoader;
     private RecipeRecyclerViewAdapter mRecipeAdapter;
 
     private Unbinder mUnbinder;
@@ -50,13 +50,14 @@ public class RecipeFragment extends Fragment implements RecipeLoader.Callbacks {
      * fragment (e.g. upon screen orientation changes).
      */
     public RecipeFragment() {
-        //mRecipeLoader = new RecipeLoader(getContext(), getLoaderManager(), this);
     }
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        mRecipeLoader = new RecipeLoader(getContext(), getLoaderManager(), this);
+        if (mRecipeLoader == null) {
+            mRecipeLoader = new RecipeLoader(getContext(), getLoaderManager(), this);
+        }
         mRecipeLoader.init(null);
         if (!getResources().getBoolean(R.bool.landscape_only)) {
             AppCompatActivity activity = (AppCompatActivity) getActivity();

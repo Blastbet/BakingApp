@@ -13,10 +13,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.blastbet.nanodegree.bakingapp.data.BakingLoader;
+import com.blastbet.nanodegree.bakingapp.data.RecipeIngredientsLoader;
 import com.blastbet.nanodegree.bakingapp.data.RecipeStepLoader;
 
 import butterknife.BindView;
@@ -40,7 +40,7 @@ public class RecipeDetailsFragment extends Fragment implements BakingLoader.Call
     private int mRecipeId;
     private String mName;
 
-    private RecipeStepLoader mStepLoader;
+    protected RecipeStepLoader mStepLoader;
 
     private RecipeDetailsRecyclerViewAdapter mRecipeAdapter;
 
@@ -60,6 +60,7 @@ public class RecipeDetailsFragment extends Fragment implements BakingLoader.Call
     static RecipeDetailsFragment newInstance(int recipeId, String name) {
         RecipeDetailsFragment fragment = new RecipeDetailsFragment();
         Bundle args = new Bundle();
+        Log.d(TAG, "New details for recipe: " + name + " (" + recipeId + ")");
         args.putInt(KEY_RECIPE_ID, recipeId);
         args.putString(KEY_RECIPE_NAME, name);
         fragment.setArguments(args);
@@ -73,6 +74,7 @@ public class RecipeDetailsFragment extends Fragment implements BakingLoader.Call
         if (getArguments() != null) {
             mRecipeId = arguments.getInt(KEY_RECIPE_ID);
             mName = arguments.getString(KEY_RECIPE_NAME);
+            Log.d(TAG, "Creating recipe: " + mName + " (" + mRecipeId + ")");
         }
     }
 
@@ -86,7 +88,9 @@ public class RecipeDetailsFragment extends Fragment implements BakingLoader.Call
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        mStepLoader = new RecipeStepLoader(getContext(), getLoaderManager(), this);
+        if (mStepLoader == null) {
+            mStepLoader = new RecipeStepLoader(getContext(), getLoaderManager(), this);
+        }
         mStepLoader.init(mRecipeId);
         if (!getResources().getBoolean(R.bool.landscape_only)) {
             AppCompatActivity activity = (AppCompatActivity) getActivity();
@@ -108,6 +112,7 @@ public class RecipeDetailsFragment extends Fragment implements BakingLoader.Call
         if (savedInstanceState != null) {
             mRecipeId = savedInstanceState.getInt(KEY_RECIPE_ID);
             mName = savedInstanceState.getString(KEY_RECIPE_NAME);
+            Log.d(TAG, "Reverting to saved recipe state: " + mName + " (" + mRecipeId + ")");
         }
 
         if (mRecipeId < 0) {
@@ -122,37 +127,6 @@ public class RecipeDetailsFragment extends Fragment implements BakingLoader.Call
 
         return view;
     }
-
-//    public void selectStep(long stepNumber) {
-//        RecipeDetailsRecyclerViewAdapter.ViewHolder viewHolder = (RecipeDetailsRecyclerViewAdapter.ViewHolder)
-//                mRecyclerView.findViewHolderForItemId(stepNumber);
-//
-//        viewHolder.selectItem();
-//    }
-//
-//    public void selectNextStep(long stepNumber) {
-//        Log.d(TAG, "Selecting step for stepnumber: " + Long.toString(stepNumber));
-//        final int position = mRecyclerView.findViewHolderForItemId(stepNumber).getAdapterPosition() + 1;
-//
-//        RecipeDetailsRecyclerViewAdapter.ViewHolder viewHolder = (RecipeDetailsRecyclerViewAdapter.ViewHolder)
-//                mRecyclerView.findViewHolderForAdapterPosition(position);
-//        if (viewHolder != null) {
-//            viewHolder.selectItem();
-//        }
-//    }
-//
-//    public void selectPreviousStep(long stepNumber) {
-//        final int position = mRecyclerView.findViewHolderForItemId(stepNumber).getAdapterPosition() - 1;
-//
-//        if (position < 0) {
-//            return;
-//        }
-//        RecipeDetailsRecyclerViewAdapter.ViewHolder viewHolder = (RecipeDetailsRecyclerViewAdapter.ViewHolder)
-//                mRecyclerView.findViewHolderForAdapterPosition(position);
-//        if (viewHolder != null) {
-//            viewHolder.selectItem();
-//        }
-//    }
 
     @Override
     public void onDestroyView() {
@@ -182,6 +156,7 @@ public class RecipeDetailsFragment extends Fragment implements BakingLoader.Call
     @Override
     public void onLoadFinished(int id, Cursor cursor) {
         if (id == mStepLoader.getLoaderId()) {
+            Log.d(TAG, "Finished loading " + cursor.getCount() + " items");
             mRecipeAdapter.swapCursor(cursor);
         }
     }
@@ -189,6 +164,7 @@ public class RecipeDetailsFragment extends Fragment implements BakingLoader.Call
     @Override
     public void onLoaderReset(int id) {
         if (id == mStepLoader.getLoaderId()) {
+            Log.d(TAG, "Reset loader");
             mRecipeAdapter.swapCursor(null);
         }
     }

@@ -27,9 +27,11 @@ public class RecipeProvider extends ContentProvider {
     private static final int RECIPES_WITH_ID = 101;
 
     private static final int INGREDIENTS = 200;
+    private static final int INGREDIENTS_WITH_RECIPE_ID = 201;
 
     private static final int STEPS = 300;
-    private static final int STEPS_WITH_INDEX = 301;
+    private static final int STEPS_WITH_RECIPE_ID = 301;
+    private static final int STEPS_WITH_INDEX = 302;
 
     RecipeDBHelper mOpenHelper;
 
@@ -41,11 +43,15 @@ public class RecipeProvider extends ContentProvider {
         matcher.addURI(AUTHORITY, RecipeContract.PATH_RECIPES, RECIPES);
         matcher.addURI(AUTHORITY, recipePath, RECIPES_WITH_ID);
 
-        matcher.addURI(AUTHORITY, recipePath +
-                "/" + RecipeContract.PATH_INGREDIENTS, INGREDIENTS);
+        matcher.addURI(AUTHORITY, RecipeContract.PATH_INGREDIENTS, INGREDIENTS);
 
         matcher.addURI(AUTHORITY, recipePath +
-                "/" + RecipeContract.PATH_STEPS, STEPS);
+                "/" + RecipeContract.PATH_INGREDIENTS, INGREDIENTS_WITH_RECIPE_ID);
+
+        matcher.addURI(AUTHORITY, RecipeContract.PATH_STEPS, STEPS);
+
+        matcher.addURI(AUTHORITY, recipePath +
+                "/" + RecipeContract.PATH_STEPS, STEPS_WITH_RECIPE_ID);
 
         matcher.addURI(AUTHORITY, recipePath +
                 "/" + RecipeContract.PATH_STEPS + "/#", STEPS_WITH_INDEX);
@@ -113,11 +119,11 @@ public class RecipeProvider extends ContentProvider {
                         null, null, sortOrder);
                 break;
             case INGREDIENTS:
-//                retCursor = db.query(IngredientEntry.TABLE_NAME,
-//                        projection, selection, selectionArgs, null, null,
-//                        IngredientEntry.COLUMN_RECIPE_ID + " ASC");
-//                break;
-//            case INGREDIENTS_WITH_ID:
+                retCursor = db.query(IngredientEntry.TABLE_NAME,
+                        projection, selection, selectionArgs, null, null,
+                        IngredientEntry.COLUMN_RECIPE_ID + " ASC");
+                break;
+            case INGREDIENTS_WITH_RECIPE_ID:
                 recipeId = getIdFromUri(uri);
                 Log.d(TAG, "Querying ingredients for recipe no " + recipeId);
                 retCursor = db.query(IngredientEntry.TABLE_NAME,
@@ -126,11 +132,11 @@ public class RecipeProvider extends ContentProvider {
                         IngredientEntry._ID + " ASC");
                 break;
             case STEPS:
-//                retCursor = db.query(StepEntry.TABLE_NAME,
-//                        projection, selection, selectionArgs, null, null,
-//                        StepEntry.COLUMN_RECIPE_ID + " ASC");
-//                break;
-//            case STEPS_WITH_ID:
+                retCursor = db.query(StepEntry.TABLE_NAME,
+                        projection, selection, selectionArgs, null, null,
+                        StepEntry.COLUMN_RECIPE_ID + " ASC");
+                break;
+            case STEPS_WITH_RECIPE_ID:
                 recipeId = getIdFromUri(uri);
                 retCursor = db.query(StepEntry.TABLE_NAME,
                         projection, sStepSelection, new String[]{Long.toString(recipeId)},
@@ -163,9 +169,9 @@ public class RecipeProvider extends ContentProvider {
                 return RecipeEntry.CONTENT_TYPE;
             case RECIPES_WITH_ID:
                 return RecipeEntry.CONTENT_ITEM_TYPE;
-            case INGREDIENTS:
+            case INGREDIENTS_WITH_RECIPE_ID:
                 return IngredientEntry.CONTENT_TYPE;
-            case STEPS:
+            case STEPS_WITH_RECIPE_ID:
                 return StepEntry.CONTENT_TYPE;
             case STEPS_WITH_INDEX:
                 return StepEntry.CONTENT_ITEM_TYPE;
@@ -195,7 +201,7 @@ public class RecipeProvider extends ContentProvider {
                     throw new android.database.SQLException("Failed to insert row into " + uri);
                 }
                 break;
-            case INGREDIENTS:
+            case INGREDIENTS_WITH_RECIPE_ID:
                 _id = db.insertWithOnConflict(
                         IngredientEntry.TABLE_NAME,
                         null,
@@ -208,7 +214,7 @@ public class RecipeProvider extends ContentProvider {
                     throw new android.database.SQLException("Failed to insert row into " + uri);
                 }
                 break;
-            case STEPS:
+            case STEPS_WITH_RECIPE_ID:
                 _id = db.insertWithOnConflict(
                         StepEntry.TABLE_NAME,
                         null,
@@ -259,7 +265,12 @@ public class RecipeProvider extends ContentProvider {
                 numRowsDeleted = db.delete(RecipeEntry.TABLE_NAME, sRecipeIdSelection,
                         new String[]{Long.toString(id)});
                 break;
+
             case INGREDIENTS:
+                numRowsDeleted = db.delete(IngredientEntry.TABLE_NAME, selection, selectionArgs);
+                break;
+
+            case INGREDIENTS_WITH_RECIPE_ID:
 //                numRowsDeleted = db.delete(IngredientEntry.TABLE_NAME, selection, selectionArgs);
 //                break;
 //            case INGREDIENTS_WITH_ID:
@@ -267,7 +278,12 @@ public class RecipeProvider extends ContentProvider {
                 numRowsDeleted = db.delete(IngredientEntry.TABLE_NAME, sIngredientSelection,
                         new String[]{Long.toString(id)});
                 break;
+
             case STEPS:
+                numRowsDeleted = db.delete(StepEntry.TABLE_NAME, selection, selectionArgs);
+                break;
+
+            case STEPS_WITH_RECIPE_ID:
 //                numRowsDeleted = db.delete(StepEntry.TABLE_NAME, selection, selectionArgs);
 //                break;
 //            case STEPS_WITH_ID:
@@ -302,7 +318,7 @@ public class RecipeProvider extends ContentProvider {
                 numRowsUpdated = db.update(RecipeEntry.TABLE_NAME, contentValues, sRecipeIdSelection,
                         new String[]{Long.toString(id)});
                 break;
-            case INGREDIENTS:
+            case INGREDIENTS_WITH_RECIPE_ID:
 //                numRowsUpdated = db.update(IngredientEntry.TABLE_NAME, contentValues, selection, selectionArgs);
 //                break;
 //            case INGREDIENTS_WITH_ID:
@@ -310,7 +326,7 @@ public class RecipeProvider extends ContentProvider {
                 numRowsUpdated = db.update(IngredientEntry.TABLE_NAME, contentValues, sIngredientSelection,
                         new String[]{Long.toString(id)});
                 break;
-            case STEPS:
+            case STEPS_WITH_RECIPE_ID:
 //                numRowsUpdated = db.update(StepEntry.TABLE_NAME, contentValues, selection, selectionArgs);
 //                break;
 //            case STEPS_WITH_ID:
@@ -340,10 +356,10 @@ public class RecipeProvider extends ContentProvider {
             case RECIPES:
                 table = RecipeEntry.TABLE_NAME;
                 break;
-            case STEPS:
+            case STEPS_WITH_RECIPE_ID:
                 table = StepEntry.TABLE_NAME;
                 break;
-            case INGREDIENTS:
+            case INGREDIENTS_WITH_RECIPE_ID:
                 table = IngredientEntry.TABLE_NAME;
                 break;
             default:

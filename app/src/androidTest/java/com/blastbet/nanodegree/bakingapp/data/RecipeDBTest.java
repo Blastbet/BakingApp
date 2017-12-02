@@ -28,6 +28,7 @@ public class RecipeDBTest {
 
     @Test
     public void createDBTest() throws Exception {
+
         final HashSet<String> tableNames = new HashSet<>();
         tableNames.add(RecipeEntry.TABLE_NAME);
         tableNames.add(StepEntry.TABLE_NAME);
@@ -36,7 +37,9 @@ public class RecipeDBTest {
         Context context = InstrumentationRegistry.getTargetContext();
         context.deleteDatabase(RecipeDBHelper.DATABASE_NAME);
 
-        SQLiteDatabase db = new RecipeDBHelper(context).getWritableDatabase();
+        RecipeDBHelper dbHelper = new RecipeDBHelper(context);
+
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
         assertTrue(db.isOpen());
 
         Cursor c = db.rawQuery("SELECT name FROM sqlite_master WHERE type='table'", null);
@@ -131,8 +134,15 @@ public class RecipeDBTest {
 
     @Test
     public void testRecipeTableConfiguration() {
+
         final int RECIPE_ID = 123456;
+
         Context context = InstrumentationRegistry.getTargetContext();
+        context.deleteDatabase(RecipeDBHelper.DATABASE_NAME);
+
+        RecipeDBHelper dbHelper = new RecipeDBHelper(context);
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+
         TestUtilities.insertTestRecipe(context, RECIPE_ID);
 
         Vector<ContentValues> ingredients = TestUtilities.getTestRecipeIngredients(RECIPE_ID, 10);
@@ -144,15 +154,13 @@ public class RecipeDBTest {
         TestUtilities.insertContentVector(context, "Recipe tests",
                 StepEntry.TABLE_NAME, steps);
 
-        SQLiteDatabase db = new RecipeDBHelper(context).getReadableDatabase();
-
         String ingredientSelection =
                 IngredientEntry.TABLE_NAME + "." + IngredientEntry.COLUMN_RECIPE_ID + " = ? ";
 
         Cursor c = db.query(
                 IngredientEntry.TABLE_NAME, null,
                 ingredientSelection, new String[]{Integer.toString(RECIPE_ID)},
-                null,null,null);
+                null,null,IngredientEntry.COLUMN_QUANTITY + " ASC");
 
         assertTrue("Error: The database has not been created correctly", c.moveToFirst());
 

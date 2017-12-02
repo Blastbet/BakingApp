@@ -1,12 +1,9 @@
 package com.blastbet.nanodegree.bakingapp;
 
-import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.CardView;
-import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -30,10 +27,9 @@ public class IngredientFragment extends Fragment implements BakingLoader.Callbac
 
     private static final String KEY_RECIPE_ID = "recipe_id";
 
-//    private OnIngredientFragmentInteractionListener mListener;
     private int mRecipeId;
 
-    private RecipeIngredientsLoader mLoader;
+    protected RecipeIngredientsLoader mLoader;
 
     @BindView(R.id.list) RecyclerView mIngredientListView;
     @BindView(R.id.empty_view) TextView mEmptyView;
@@ -82,11 +78,6 @@ public class IngredientFragment extends Fragment implements BakingLoader.Callbac
     }
 
     @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-    }
-
-    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_ingredient_list, container, false);
@@ -102,8 +93,6 @@ public class IngredientFragment extends Fragment implements BakingLoader.Callbac
                 .loadLayoutAnimation(getContext(), R.anim.layout_animation_slide_down);
         mIngredientListView.setLayoutAnimation(animation);
 
-//        mItemDecoration = new DividerItemDecoration(getContext(), mLayoutManager.getOrientation());
-//        mIngredientListView.addItemDecoration(mItemDecoration);
         if (savedInstanceState != null) {
             mRecipeId = savedInstanceState.getInt(KEY_RECIPE_ID);
         }
@@ -128,26 +117,8 @@ public class IngredientFragment extends Fragment implements BakingLoader.Callbac
     }
 
     @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        /*if (context instanceof OnIngredientFragmentInteractionListener) {
-            mListener = (OnIngredientFragmentInteractionListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnIngredientFragmentInteractionListener");
-        }*/
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-//        mListener = null;
-    }
-
-    @Override
     public void onLoadFinished(int id, Cursor cursor) {
         if (id == mLoader.getLoaderId()) {
-//            Log.d(TAG, "Load Finished");
             mIngredientsData = cursor;
             expandIngredients();
         }
@@ -158,20 +129,17 @@ public class IngredientFragment extends Fragment implements BakingLoader.Callbac
         if (id == mLoader.getLoaderId()) {
             mIngredientsData = null;
             mAdapter.swapCursor(null);
-            //mIngredientListView.scheduleLayoutAnimation();
         }
     }
 
 
     private void expandIngredients() {
-//        Log.d(TAG, "EXPANDED INGREDIENTS");
         mAdapter.swapCursor(mIngredientsData);
         mIngredientListView.scheduleLayoutAnimation();
         mExpanded = true;
     }
 
     private void collapseIngredients() {
-//        Log.d(TAG, "COLLAPSE INGREDIENTS");
         mIngredientsData = null;
         mAdapter.swapCursor(null);
         mIngredientListView.scheduleLayoutAnimation();
@@ -186,14 +154,13 @@ public class IngredientFragment extends Fragment implements BakingLoader.Callbac
         }
         else {
             mIngredientsCard.setCardBackgroundColor(getResources().getColor(R.color.colorPrimary));
-            //expandIngredients();
+
             if (mLoader == null) {
                 mLoader = new RecipeIngredientsLoader(getContext(), getLoaderManager(), this);
-                mLoader.init(mRecipeId);
             }
-            else {
-                mLoader.restart(mRecipeId);
-            }
+
+            mLoader.restart(mRecipeId);
+
             mIngredientsCard.setCardElevation(0);
         }
     }

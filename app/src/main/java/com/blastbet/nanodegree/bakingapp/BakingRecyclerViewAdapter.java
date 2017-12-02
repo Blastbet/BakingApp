@@ -19,7 +19,7 @@ public abstract class BakingRecyclerViewAdapter<VH extends RecyclerView.ViewHold
     protected Cursor mCursor;
     protected boolean mDataValid;
 
-    public BakingRecyclerViewAdapter() {
+    BakingRecyclerViewAdapter() {
         mDataValid = false;
 
         mDataSetObserver = new DataSetObserver() {
@@ -39,7 +39,7 @@ public abstract class BakingRecyclerViewAdapter<VH extends RecyclerView.ViewHold
         };
     }
 
-    public void swapCursor(Cursor cursor) {
+    void swapCursor(Cursor cursor) {
         Log.d(TAG, "Swapping cursor to " + (cursor != null ? "new one" : "null"));
         if (cursor == mCursor) {
             Log.d(TAG, "same cursor -> nop");
@@ -58,6 +58,7 @@ public abstract class BakingRecyclerViewAdapter<VH extends RecyclerView.ViewHold
             }
             cursor.moveToFirst();
             mDataValid = true;
+            Log.d(TAG, "Data is now valid");
         }
         else {
             Log.d(TAG, "Invalid data");
@@ -68,16 +69,18 @@ public abstract class BakingRecyclerViewAdapter<VH extends RecyclerView.ViewHold
         notifyDataSetChanged();
     }
 
-    public void setEmptyView(final TextView emptyView, final RecyclerView recyclerView) {
+    void setEmptyView(final TextView emptyView, final RecyclerView recyclerView) {
         RecyclerView.AdapterDataObserver dataObserver = new RecyclerView.AdapterDataObserver() {
             @Override
             public void onChanged() {
                 Log.d(TAG, "Got notified of change in data");
                 if (getItemCount() <= 0) {
+                    Log.d(TAG, "Showing empty view");
                     emptyView.setVisibility(View.VISIBLE);
                     recyclerView.setVisibility(View.GONE);
                 }
                 else {
+                    Log.d(TAG, "Hiding empty view");
                     emptyView.setVisibility(View.GONE);
                     recyclerView.setVisibility(View.VISIBLE);
                 }
