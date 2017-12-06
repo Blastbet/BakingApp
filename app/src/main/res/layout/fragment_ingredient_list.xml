@@ -46,15 +46,4 @@
         tools:listitem="@layout/ingredient_list_item"
         />
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/empty_view"
-        android:layout_margin="16dp"
-        android:layout_alignTop="@id/ingredients_card"
-        android:layout_alignBottom="@id/ingredients_card"
-        android:text="@string/no_data"
-        android:visibility="gone"
-        />
-
 </RelativeLayout>

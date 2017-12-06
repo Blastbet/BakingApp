@@ -32,7 +32,6 @@ public class IngredientFragment extends Fragment implements BakingLoader.Callbac
     protected RecipeIngredientsLoader mLoader;
 
     @BindView(R.id.list) RecyclerView mIngredientListView;
-    @BindView(R.id.empty_view) TextView mEmptyView;
     @BindView(R.id.ingredients_card) CardView mIngredientsCard;
 
     private boolean mExpanded;
