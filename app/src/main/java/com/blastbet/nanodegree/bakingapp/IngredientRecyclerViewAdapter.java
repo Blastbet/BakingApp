@@ -9,6 +9,7 @@ import android.widget.TextView;
 
 import com.blastbet.nanodegree.bakingapp.data.RecipeIngredientsLoader;
 
+import java.text.DecimalFormat;
 import java.util.Arrays;
 
 import butterknife.BindView;
@@ -17,6 +18,8 @@ import butterknife.ButterKnife;
 public class IngredientRecyclerViewAdapter extends BakingRecyclerViewAdapter<IngredientRecyclerViewAdapter.ViewHolder> {
 
     private static final String TAG = IngredientRecyclerViewAdapter.class.getSimpleName();
+
+    private static final DecimalFormat quantityFormat = new DecimalFormat("0.#");
 
     public IngredientRecyclerViewAdapter() {
         super();
@@ -41,7 +44,7 @@ public class IngredientRecyclerViewAdapter extends BakingRecyclerViewAdapter<Ing
         String measure = mCursor.getString(RecipeIngredientsLoader.COL_INGREDIENT_MEASURE);
         String ingredient = mCursor.getString(RecipeIngredientsLoader.COL_INGREDIENT_NAME);
 
-        holder.mQuantity.setText(Double.toString(quantity));
+        holder.mQuantity.setText(quantityFormat.format(quantity));
         holder.mMeasure.setText(measure.toLowerCase());
         holder.mIngredientName.setText(ingredient);
 
