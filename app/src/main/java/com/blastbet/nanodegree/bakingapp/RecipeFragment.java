@@ -17,6 +17,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.blastbet.nanodegree.bakingapp.common.AppConfiguration;
 import com.blastbet.nanodegree.bakingapp.data.RecipeLoader;
 import com.blastbet.nanodegree.bakingapp.sync.RecipeSyncAdapter;
 
@@ -45,6 +46,8 @@ public class RecipeFragment extends Fragment implements RecipeLoader.Callbacks {
 
     private Unbinder mUnbinder;
 
+    private AppConfiguration mAppConfig;
+
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
      * fragment (e.g. upon screen orientation changes).
@@ -59,7 +62,7 @@ public class RecipeFragment extends Fragment implements RecipeLoader.Callbacks {
             mRecipeLoader = new RecipeLoader(getContext(), getLoaderManager(), this);
         }
         mRecipeLoader.init(null);
-        if (!getResources().getBoolean(R.bool.landscape_only)) {
+        if (!mAppConfig.isOnlyLandscape()) {
             AppCompatActivity activity = (AppCompatActivity) getActivity();
             ActionBar actionbar = activity.getSupportActionBar();
             if (actionbar != null) {
@@ -91,7 +94,7 @@ public class RecipeFragment extends Fragment implements RecipeLoader.Callbacks {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (getResources().getBoolean(R.bool.landscape_only)) {
+        if (mAppConfig.isOnlyLandscape()) {
             mColumnCount = 3;
         }
         else {
@@ -128,12 +131,15 @@ public class RecipeFragment extends Fragment implements RecipeLoader.Callbacks {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof OnRecipeListInteractionListener) {
+        if (context instanceof OnRecipeListInteractionListener &&
+                context instanceof AppConfiguration) {
             mListener = (OnRecipeListInteractionListener) context;
+            mAppConfig = (AppConfiguration) context;
         } else {
             throw new RuntimeException(context.toString()
-                    + " must implement OnRecipeListInteractionListener");
+                    + " must implement OnRecipeListInteractionListener and AppConfiguration");
         }
+
     }
 
     @Override

@@ -15,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.blastbet.nanodegree.bakingapp.common.AppConfiguration;
 import com.blastbet.nanodegree.bakingapp.data.BakingLoader;
 import com.blastbet.nanodegree.bakingapp.data.RecipeIngredientsLoader;
 import com.blastbet.nanodegree.bakingapp.data.RecipeStepLoader;
@@ -43,6 +44,8 @@ public class RecipeDetailsFragment extends Fragment implements BakingLoader.Call
     protected RecipeStepLoader mStepLoader;
 
     private RecipeDetailsRecyclerViewAdapter mRecipeAdapter;
+
+    private AppConfiguration mAppConfig;
 
     @BindView(R.id.list) RecyclerView mRecyclerView;
     @BindView(R.id.empty_view) TextView mEmptyView;
@@ -92,7 +95,7 @@ public class RecipeDetailsFragment extends Fragment implements BakingLoader.Call
             mStepLoader = new RecipeStepLoader(getContext(), getLoaderManager(), this);
         }
         mStepLoader.init(mRecipeId);
-        if (!getResources().getBoolean(R.bool.landscape_only)) {
+        if (!mAppConfig.isOnlyLandscape()) {
             AppCompatActivity activity = (AppCompatActivity) getActivity();
             ActionBar actionbar = activity.getSupportActionBar();
             if (actionbar != null) {
@@ -139,11 +142,13 @@ public class RecipeDetailsFragment extends Fragment implements BakingLoader.Call
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof OnRecipeStepFragmentInteractionListener) {
+        if (context instanceof OnRecipeStepFragmentInteractionListener &&
+                context instanceof AppConfiguration) {
             mListener = (OnRecipeStepFragmentInteractionListener) context;
+            mAppConfig = (AppConfiguration) context;
         } else {
             throw new RuntimeException(context.toString()
-                    + " must implement OnIngredientFragmentInteractionListener");
+                    + " must implement OnRecipeStepFragmentInteractionListener and AppConfiguration");
         }
     }
 

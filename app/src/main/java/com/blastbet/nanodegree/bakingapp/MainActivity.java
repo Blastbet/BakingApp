@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.ViewGroup;
 
+import com.blastbet.nanodegree.bakingapp.common.AppConfiguration;
 import com.blastbet.nanodegree.bakingapp.connection.ConnectivityMonitor;
 
 import butterknife.BindView;
@@ -15,7 +16,9 @@ import butterknife.ButterKnife;
 
 public class MainActivity extends AppCompatActivity
         implements RecipeFragment.OnRecipeListInteractionListener,
-        RecipeDetailsFragment.OnRecipeStepFragmentInteractionListener {
+        RecipeDetailsFragment.OnRecipeStepFragmentInteractionListener,
+        AppConfiguration
+{
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
@@ -43,7 +46,7 @@ public class MainActivity extends AppCompatActivity
                     ViewGroup.LayoutParams.MATCH_PARENT);
 
             int containerId = R.id.fragment_container;
-            if (getResources().getBoolean(R.bool.landscape_only)) {
+            if (isOnlyLandscape()) {
                 containerId = R.id.container_navigation;
                 setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
             }
@@ -89,7 +92,7 @@ public class MainActivity extends AppCompatActivity
                 .findFragmentByTag(getString(R.string.recipe_list_fragment_tag));
 
         int containerId = R.id.fragment_container;
-        if (getResources().getBoolean(R.bool.landscape_only)) {
+        if (isOnlyLandscape()) {
             containerId = R.id.container_navigation;
         }
 
@@ -101,7 +104,7 @@ public class MainActivity extends AppCompatActivity
                 .add(containerId, ingredientFragment, getString(R.string.ingredient_fragment_tag))
                 .add(containerId, rdf, getString(R.string.recipe_step_list_fragment_tag));
 
-        if (getResources().getBoolean(R.bool.landscape_only)) {
+        if (isOnlyLandscape()) {
             RecipeStepDetailsFragment rsdf = new RecipeStepDetailsFragment();
             transaction = transaction.add(R.id.fragment_container, rsdf, getString(R.string.recipe_step_details_fragment_tag));
         }
@@ -122,7 +125,7 @@ public class MainActivity extends AppCompatActivity
 
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 
-        if (!getResources().getBoolean(R.bool.landscape_only)) {
+        if (!isOnlyLandscape()) {
             RecipeDetailsFragment rdf = (RecipeDetailsFragment) getSupportFragmentManager()
                     .findFragmentByTag(getString(R.string.recipe_step_list_fragment_tag));
 
@@ -139,5 +142,10 @@ public class MainActivity extends AppCompatActivity
         transaction.add(R.id.fragment_container, rsdf, getString(R.string.recipe_step_details_fragment_tag))
                 .addToBackStack(null)
                 .commit();
+    }
+
+    @Override
+    public boolean isOnlyLandscape() {
+        return getResources().getBoolean(R.bool.landscape_only);
     }
 }

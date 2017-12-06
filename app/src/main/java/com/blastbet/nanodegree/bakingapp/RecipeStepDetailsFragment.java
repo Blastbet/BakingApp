@@ -20,6 +20,7 @@ import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.blastbet.nanodegree.bakingapp.common.AppConfiguration;
 import com.blastbet.nanodegree.bakingapp.connection.ConnectivityMonitor;
 import com.blastbet.nanodegree.bakingapp.data.RecipeStepDetailsLoader;
 import com.blastbet.nanodegree.bakingapp.player.PlayerHandler;
@@ -54,6 +55,8 @@ public class RecipeStepDetailsFragment extends Fragment
     private SimpleExoPlayer mPlayer;
 
     private boolean mIsConnected;
+
+    private AppConfiguration mAppConfig;
 
     @BindView(R.id.recipe_step_container) LinearLayout mContainer;
     @BindView(R.id.player_recipe_step_instruction) SimpleExoPlayerView mPlayerView;
@@ -140,7 +143,7 @@ public class RecipeStepDetailsFragment extends Fragment
         View view = inflater.inflate(R.layout.fragment_recipe_step_details, container, false);
         ButterKnife.bind(this, view);
         Context context = view.getContext();
-        if (context.getResources().getBoolean(R.bool.landscape_only)) {
+        if (mAppConfig.isOnlyLandscape()) {
             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                     0, ViewGroup.LayoutParams.MATCH_PARENT,
                     context.getResources().getInteger(R.integer.weight_recipe_step_details_fragment));
@@ -184,6 +187,17 @@ public class RecipeStepDetailsFragment extends Fragment
         return view;
     }
 
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof AppConfiguration) {
+            mAppConfig = (AppConfiguration) context;
+        } else {
+            throw new RuntimeException(context.toString() + " must implement AppConfiguration");
+        }
+
+    }
+
     private void setupViews() {
         if (mData != null && mData.moveToFirst()) {
             final String url = mData.getString(RecipeStepDetailsLoader.COL_STEP_VIDEO_URL);
@@ -204,7 +218,7 @@ public class RecipeStepDetailsFragment extends Fragment
             mTextView.setText(description);
 
             Log.d(TAG, "Description: " + description);
-            if (!getResources().getBoolean(R.bool.landscape_only)) {
+            if (!mAppConfig.isOnlyLandscape()) {
                 Log.d(TAG, "Configure navigation buttons.");
                 setupNavigationButtons();
             }
@@ -242,7 +256,7 @@ public class RecipeStepDetailsFragment extends Fragment
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        if (!getResources().getBoolean(R.bool.landscape_only) &&
+        if (!mAppConfig.isOnlyLandscape() &&
             getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
             ActionBar actionBar = ((AppCompatActivity)getActivity()).getSupportActionBar();
             if (actionBar != null) {
