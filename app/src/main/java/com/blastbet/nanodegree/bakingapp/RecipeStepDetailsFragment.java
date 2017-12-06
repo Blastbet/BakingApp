@@ -97,6 +97,7 @@ public class RecipeStepDetailsFragment extends Fragment
             onDataUnavailable();
         }
         else {
+            Log.d(TAG, "Set new cursor, STEP: " + mData.getInt(RecipeStepDetailsLoader.COL_STEP_INDEX));
             mRecipeStep = mData.getInt(RecipeStepDetailsLoader.COL_STEP_INDEX);
             setupViews();
         }

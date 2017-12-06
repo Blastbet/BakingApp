@@ -5,19 +5,24 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
+import com.blastbet.nanodegree.bakingapp.common.AppConfiguration;
+
 /**
  * Created by ilkka on 26.11.2017.
  */
 
 public class TestActivity extends AppCompatActivity implements
         RecipeFragment.OnRecipeListInteractionListener,
-        RecipeDetailsFragment.OnRecipeStepFragmentInteractionListener
+        RecipeDetailsFragment.OnRecipeStepFragmentInteractionListener,
+        AppConfiguration
 {
     private static final String TAG = TestActivity.class.getSimpleName();
     public int mRecipeId;
     public String mRecipeName;
     public int mStepNumber;
     public int mStepCount;
+
+    public static boolean onlyLandscape = false;
 
     @Override
     protected void onDestroy() {
@@ -66,5 +71,11 @@ public class TestActivity extends AppCompatActivity implements
         mRecipeId = recipeId;
         mStepNumber = stepNumber;
         mStepCount = stepCount;
+    }
+
+
+    @Override
+    public boolean isOnlyLandscape() {
+        return onlyLandscape;
     }
 }
